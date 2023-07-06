@@ -162,17 +162,25 @@ OptionsParser::parse(int argc, char *argv[], TargetParserIface *tp,
 
   po::options_description hidden;
   hidden.add_options()
-      ("input-config", po::value<std::string>(), "input config")
+      ("pipe1-config", po::value<std::string>(), "pipe1 input config")
+      ("pipe2-config", po::value<std::string>(), "pipe2 input config")
+      ("pipe3-config", po::value<std::string>(), "pipe3 input config")
+      ("pipe4-config", po::value<std::string>(), "pipe4 input config")
       ("to-pass-further", po::value<std::vector<std::string> >(), "");
 
   po::options_description options;
   options.add(description).add(hidden);
 
   po::positional_options_description positional;
-  positional.add("input-config", 1);
+  positional.add("pipe1-config", 1);
+  positional.add("pipe2-config", 1);
+  positional.add("pipe3-config", 1);
+  positional.add("pipe4-config", 1);
   positional.add("to-pass-further", -1);
 
   options_provided.clear();
+
+  std::cout << options;
 
   po::variables_map vm;
   auto parser = po::command_line_parser(argc, argv);
@@ -225,7 +233,7 @@ OptionsParser::parse(int argc, char *argv[], TargetParserIface *tp,
   }
 
   no_p4 = vm.count("no-p4");
-  if (!no_p4 && !vm.count("input-config")) {
+  if (!no_p4 && !vm.count("pipe1-config")) {
     outstream << "Error: please specify an input JSON configuration file\n";
     outstream << "Usage: SWITCH_NAME [options] <path to JSON config file>\n";
     outstream << description;
@@ -233,8 +241,8 @@ OptionsParser::parse(int argc, char *argv[], TargetParserIface *tp,
   }
   // this is a little hacky because we are mixing positional arguments; ideally
   // the input config would be just a regular option
-  if (no_p4 && vm.count("input-config")) {
-    auto path = vm["input-config"].as<std::string>();
+  if (no_p4 && vm.count("pipe1-config")) {
+    auto path = vm["pipe1-config"].as<std::string>();
     auto is_pos = (path.size() > 2 && path.substr(0, 2) != "--");
     auto dot = path.find_last_of(".");
     auto has_json_extension =
@@ -245,8 +253,13 @@ OptionsParser::parse(int argc, char *argv[], TargetParserIface *tp,
       outstream << "Warning: ignoring input config as '--no-p4' was used\n";
     }
   }
-  if (!no_p4 && vm.count("input-config"))
-    config_file_path = vm["input-config"].as<std::string>();
+  if (!no_p4 && vm.count("pipe1-config")) {
+    config_pipes[0] = vm["pipe1-config"].as<std::string>();
+    config_pipes[1] = vm["pipe2-config"].as<std::string>();
+    config_pipes[2] = vm["pipe3-config"].as<std::string>();
+    config_pipes[3] = vm["pipe4-config"].as<std::string>();
+  }
+    
 
   device_id = 0;
   if (vm.count("device-id")) {

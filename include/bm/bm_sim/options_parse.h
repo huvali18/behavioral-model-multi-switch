@@ -70,6 +70,8 @@ class OptionsParser {
   bool option_was_provided(const std::string &option) const;
 
   std::string config_file_path{};
+  std::string config_pipes[4];
+
   bool no_p4{false};
   InterfaceList ifaces{};
   bool pcap{false};
