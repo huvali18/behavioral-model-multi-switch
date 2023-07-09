@@ -149,6 +149,36 @@ SwitchWContexts::set_group_selector(
 }
 
 int
+SwitchWContexts::init_objects_multi(cxt_id_t cxt_id, std::istream *is, device_id_t dev_id,
+                              std::shared_ptr<TransportIface> transport) {
+  int status = 0;
+
+  device_id = dev_id;
+
+  if (!transport) {
+    notifications_transport = std::shared_ptr<TransportIface>(
+        TransportIface::make_dummy());
+  } else {
+    notifications_transport = std::move(transport);
+  }
+
+  auto &cxt = contexts.at(cxt_id);
+  cxt.set_device_id(device_id);
+  cxt.set_notifications_transport(notifications_transport);
+  if (is != nullptr) {
+    status = cxt.init_objects(is, get_lookup_factory(),
+                              required_fields, arith_objects);
+    is->clear();
+    is->seekg(0, std::ios::beg);
+    if (status != 0) return status;
+  }
+  phv_source->set_phv_factory(cxt_id, &cxt.get_phv_factory());
+  
+
+  return 0;
+}
+
+int
 SwitchWContexts::init_objects(std::istream *is, device_id_t dev_id,
                               std::shared_ptr<TransportIface> transport) {
   int status = 0;
@@ -178,6 +208,37 @@ SwitchWContexts::init_objects(std::istream *is, device_id_t dev_id,
 
   return 0;
 }
+
+
+int
+SwitchWContexts::init_objects_multi(const std::string json_path[4], device_id_t dev_id,
+                              std::shared_ptr<TransportIface> transport) {
+
+  for(cxt_id_t cxt_id = 0; cxt_id < nb_cxts; cxt_id++) {
+    std::ifstream fs(json_path[cxt_id], std::ios::in);
+    if (!fs) {
+      std::cout << "JSON input file " << json_path[cxt_id] << " cannot be opened\n";
+      return 1;
+    }
+
+    int status = init_objects_multi(cxt_id, &fs, dev_id, transport);
+    if (status != 0) return status;
+
+    {
+    std::unique_lock<std::mutex> config_lock(config_mutex);
+    current_config = std::string((std::istreambuf_iterator<char>(fs)),
+                                 std::istreambuf_iterator<char>());
+    config_loaded = true;
+    }
+
+  }
+  
+
+  
+
+  return 0;
+}
+
 
 int
 SwitchWContexts::init_objects(const std::string &json_path, device_id_t dev_id,
@@ -260,7 +321,13 @@ SwitchWContexts::init_from_options_parser(
   if (parser.no_p4)
     status = init_objects_empty(parser.device_id, transport);
   else
-    status = init_objects(parser.config_file_path, parser.device_id, transport);
+    if (get_simple_switch()) {
+      status = init_objects_multi(parser.config_pipes, parser.device_id, transport);
+    }
+    else {
+      status = init_objects(parser.config_file_path, parser.device_id, transport);
+    }
+    
   if (status != 0) return status;
 
   if (my_dev_mgr != nullptr)

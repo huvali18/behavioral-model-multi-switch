@@ -219,6 +219,7 @@ SimpleSwitch::SimpleSwitch(bool enable_swap, port_t drop_port,
     pre(new McSimplePreLAG()),
     start(clock::now()),
     mirroring_sessions(new MirroringSessions()) {
+  set_simple_switch(true);
   add_component<McSimplePreLAG>(pre);
 
   add_required_field("standard_metadata", "ingress_port");

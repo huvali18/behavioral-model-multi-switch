@@ -78,7 +78,6 @@ main(int argc, char* argv[]) {
       std::exit(1);
   }
 
-
   for(int i = 0; i < 4; i++) {
     std::cout << parser.config_pipes[i] << "\n";
   }

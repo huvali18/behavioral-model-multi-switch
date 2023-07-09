@@ -104,13 +104,21 @@ class SwitchWContexts : public DevMgr, public RuntimeInterface {
   //! To enable live swapping of P4-JSON configurations, enable_swap needs to be
   //! set to `true`. See switch.h documentation for more information on
   //! configuration swap.
-  explicit SwitchWContexts(size_t nb_cxts = 1u, bool enable_swap = false);
+  explicit SwitchWContexts(size_t nb_cxts = 4u, bool enable_swap = false);
 
   // TODO(antonin): return reference instead?
   //! Access a Context by context id, throws a std::out_of_range exception if
   //! \p cxt_id is invalid.
   Context *get_context(cxt_id_t cxt_id = 0u) {
     return &contexts.at(cxt_id);
+  }
+
+  bool set_simple_switch(bool value) {
+    return simple_switch = value;
+  }
+
+  bool get_simple_switch() {
+    return simple_switch;
   }
 
   int receive(port_t port_num, const char *buffer, int len);
@@ -195,6 +203,9 @@ class SwitchWContexts : public DevMgr, public RuntimeInterface {
 
   //! Get the number of contexts included in this switch
   size_t get_nb_cxts() { return nb_cxts; }
+
+  int init_objects_multi(const std::string json_path[4], device_id_t device_id = 0,
+                   std::shared_ptr<TransportIface> notif_transport = nullptr);
 
   int init_objects(const std::string &json_path, device_id_t device_id = 0,
                    std::shared_ptr<TransportIface> notif_transport = nullptr);
@@ -889,6 +900,9 @@ class SwitchWContexts : public DevMgr, public RuntimeInterface {
   int deserialize_from_file(const std::string &state_dump_path);
 
  private:
+  int init_objects_multi(cxt_id_t cxt_id, std::istream *is, device_id_t dev_id,
+                   std::shared_ptr<TransportIface> transport);
+
   int init_objects(std::istream *is, device_id_t dev_id,
                    std::shared_ptr<TransportIface> transport);
 
@@ -948,6 +962,8 @@ class SwitchWContexts : public DevMgr, public RuntimeInterface {
   ForceArith arith_objects{};
 
   int thrift_port{};
+
+  bool simple_switch{false};
 
   device_id_t device_id{};
 
