@@ -204,6 +204,10 @@ class SwitchWContexts : public DevMgr, public RuntimeInterface {
   //! Get the number of contexts included in this switch
   size_t get_nb_cxts() { return nb_cxts; }
 
+  size_t set_nb_cxts(size_t number) {
+    return nb_cxts = number;
+  }
+
   int init_objects_multi(const std::string json_path[4], device_id_t device_id = 0,
                    std::shared_ptr<TransportIface> notif_transport = nullptr);
 
@@ -1095,6 +1099,14 @@ class Switch : public SwitchWContexts {
   bool add_component(std::shared_ptr<T> ptr) {
     return add_cxt_component<T>(0, std::move(ptr));
   }
+
+
+  template<typename T>
+  bool add_component_multi(size_t cxt_id, std::shared_ptr<T> ptr) {
+    return add_cxt_component<T>(cxt_id, std::move(ptr));
+  }
+
+
 
   //! Retrieve the shared pointer to an object of type `T` previously added to
   //! the Switch using add_component().

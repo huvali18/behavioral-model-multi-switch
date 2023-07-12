@@ -216,6 +216,7 @@ SwitchWContexts::init_objects_multi(const std::string json_path[4], device_id_t 
 
   for(cxt_id_t cxt_id = 0; cxt_id < nb_cxts; cxt_id++) {
     std::ifstream fs(json_path[cxt_id], std::ios::in);
+    std::cout << nb_cxts << "\n";
     if (!fs) {
       std::cout << "JSON input file " << json_path[cxt_id] << " cannot be opened\n";
       return 1;
@@ -642,7 +643,7 @@ SwitchWContexts::transport_send_probe(uint64_t x) const {
 // Switch convenience class
 
 Switch::Switch(bool enable_swap)
-    : SwitchWContexts(1u, enable_swap) { }
+    : SwitchWContexts(4u, enable_swap) { }
 
 std::unique_ptr<Packet>
 Switch::new_packet_ptr(port_t ingress_port,

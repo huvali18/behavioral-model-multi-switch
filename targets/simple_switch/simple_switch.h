@@ -194,7 +194,10 @@ class SimpleSwitch : public Switch {
   egress_buffers;
   Queue<std::unique_ptr<Packet> > output_buffer;
   TransmitFn my_transmit_fn;
-  std::shared_ptr<McSimplePreLAG> pre;
+  std::shared_ptr<McSimplePreLAG> pre1;
+  std::shared_ptr<McSimplePreLAG> pre2;
+  std::shared_ptr<McSimplePreLAG> pre3;
+  std::shared_ptr<McSimplePreLAG> pre4;
   clock::time_point start;
   bool with_queueing_metadata{false};
   std::unique_ptr<MirroringSessions> mirroring_sessions;
