@@ -22,7 +22,11 @@ libsimpleswitch_la_SOURCES = \
 simple_switch.cpp \
 simple_switch.h \
 primitives.cpp \
-register_access.h
+register_access.h \
+multi_switch.cpp \
+multi_switch.h \
+multi_context.cpp \
+multi_context.h
 
 libsimpleswitch_runner_la_SOURCES = \
 runner.cpp

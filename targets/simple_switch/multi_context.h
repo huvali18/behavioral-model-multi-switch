@@ -1,0 +1,5 @@
+
+#ifndef MULTI_SWITCH_MULTI_CONTEXT_H_
+#define MUTLI_SWITCH_MUTLI_CONTEXT_H_
+
+#endif
