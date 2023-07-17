@@ -2,12 +2,13 @@
 #ifndef MULTI_SWITCH_MULTI_SWITCH_H_
 #define MUTLI_SWITCH_MUTLI_SWITCH_H_
 
-#include <bm/bm_sim/queue.h>
-#include <bm/bm_sim/queueing.h>
-#include <bm/bm_sim/packet.h>
-#include <bm/bm_sim/switch.h>
-#include <bm/bm_sim/event_logger.h>
-#include <bm/bm_sim/simple_pre_lag.h>
+#include <../../include/bm/bm_sim/queue.h>
+#include <../../include/bm/bm_sim/queueing.h>
+#include <../../include/bm/bm_sim/packet.h>
+#include <../../include/bm/bm_sim/switch.h>
+#include <../../include/bm/bm_sim/event_logger.h>
+#include <../../include/bm/bm_sim/simple_pre_lag.h>
+#include "multi_context.h"
 
 #include <memory>
 #include <chrono>
@@ -27,7 +28,7 @@ using ts_res = std::chrono::microseconds;
 using std::chrono::duration_cast;
 using ticks = std::chrono::nanoseconds;
 
-using bm::Switch;
+using bm::MultiContexts;
 using bm::Queue;
 using bm::Packet;
 using bm::PHV;
@@ -40,7 +41,7 @@ using bm::FieldList;
 using bm::packet_id_t;
 using bm::p4object_id_t;
 
-class MultiSwitch : public Switch {
+class MultiSwitch : public MultiContexts {
  public:
   using mirror_id_t = int;
 
@@ -117,7 +118,8 @@ class MultiSwitch : public Switch {
   MultiSwitch &&operator =(MultiSwitch &&) = delete;
 
  private:
-  static constexpr size_t nb_egress_threads = 4u;
+  static constexpr int nb_egress_threads = 4u;
+  static constexpr size_t nb_ingress_threads = 4u;
   static packet_id_t packet_id;
 
   class MirroringSessions;
@@ -146,7 +148,7 @@ class MultiSwitch : public Switch {
   };
 
  private:
-  void ingress_thread();
+  void ingress_thread(int worker_id);
   void egress_thread(size_t worker_id);
   void transmit_thread();
 
@@ -167,12 +169,21 @@ class MultiSwitch : public Switch {
  private:
   port_t drop_port;
   std::vector<std::thread> threads_;
-  std::unique_ptr<InputBuffer> input_buffer;
+  std::shared_ptr<InputBuffer> input_buffer_t1;
+  std::shared_ptr<InputBuffer> input_buffer_t2;
+  std::shared_ptr<InputBuffer> input_buffer_t3;
+  std::shared_ptr<InputBuffer> input_buffer_t4;
   // for these queues, the write operation is non-blocking and we drop the
   // packet if the queue is full
   size_t nb_queues_per_port;
   bm::QueueingLogicPriRL<std::unique_ptr<Packet>, EgressThreadMapper>
-  egress_buffers;
+  egress_buffers_t1;
+  bm::QueueingLogicPriRL<std::unique_ptr<Packet>, EgressThreadMapper>
+  egress_buffers_t2;
+  bm::QueueingLogicPriRL<std::unique_ptr<Packet>, EgressThreadMapper>
+  egress_buffers_t3;
+  bm::QueueingLogicPriRL<std::unique_ptr<Packet>, EgressThreadMapper>
+  egress_buffers_t4;
   Queue<std::unique_ptr<Packet> > output_buffer;
   TransmitFn my_transmit_fn;
   std::shared_ptr<McSimplePreLAG> pre1;

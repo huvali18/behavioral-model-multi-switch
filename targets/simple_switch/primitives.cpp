@@ -31,6 +31,7 @@
 #include <thread>
 
 #include "simple_switch.h"
+#include "multi_switch.h"
 #include "register_access.h"
 
 template <typename... Args>
@@ -48,6 +49,7 @@ using bm::Logger;
 
 namespace {
 SimpleSwitch *simple_switch;
+MultiSwitch  *multi_switch;
 }  // namespace
 
 class modify_field : public ActionPrimitive<Data &, const Data &> {
@@ -478,5 +480,10 @@ REGISTER_PRIMITIVE_W_NAME("truncate", truncate_);
 // the constructor of SimpleSwitch.
 int import_primitives(SimpleSwitch *sswitch) {
   simple_switch = sswitch;
+  return 0;
+}
+
+int import_primitives_multi(MultiSwitch *sswitch) {
+  multi_switch = sswitch;
   return 0;
 }

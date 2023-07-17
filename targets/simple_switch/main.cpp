@@ -28,13 +28,15 @@
 #include <bm/bm_sim/target_parser.h>
 
 #include "simple_switch.h"
+#include "multi_switch.h"
+#include "../../thrift/src/MultiSwitch_server.cpp"
 
 namespace {
-SimpleSwitch *simple_switch;
+MultiSwitch *multi_switch;
 }  // namespace
 
 namespace sswitch_runtime {
-shared_ptr<SimpleSwitchIf> get_handler(SimpleSwitch *sw);
+shared_ptr<SimpleSwitchIf> get_handler_multi(MultiSwitch *sw);
 }  // namespace sswitch_runtime
 
 int
@@ -82,19 +84,19 @@ main(int argc, char* argv[]) {
     std::cout << parser.config_pipes[i] << "\n";
   }
 
-  simple_switch = new SimpleSwitch(enable_swap_flag, drop_port,
+  multi_switch = new MultiSwitch(enable_swap_flag, drop_port,
                                    priority_queues);
 
-  int status = simple_switch->init_from_options_parser(parser);
+  int status = multi_switch->init_from_options_parser(parser);
   if (status != 0) std::exit(status);
 
-  int thrift_port = simple_switch->get_runtime_port();
-  bm_runtime::start_server(simple_switch, thrift_port);
+  int thrift_port = multi_switch->get_runtime_port();
+  bm_runtime::start_server(multi_switch, thrift_port);
   using ::sswitch_runtime::SimpleSwitchIf;
   using ::sswitch_runtime::SimpleSwitchProcessor;
   bm_runtime::add_service<SimpleSwitchIf, SimpleSwitchProcessor>(
-      "simple_switch", sswitch_runtime::get_handler(simple_switch));
-  simple_switch->start_and_return();
+      "simple_switch", sswitch_runtime::get_handler_multi(multi_switch));
+  multi_switch->start_and_return();
 
   while (true) std::this_thread::sleep_for(std::chrono::seconds(100));
 
