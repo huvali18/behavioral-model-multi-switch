@@ -1196,6 +1196,7 @@ class RuntimeAPI(cmd.Cmd):
         print("Entry has been added with handle", entry_handle)
 
     def complete_table_add(self, text, line, start_index, end_index):
+        print("complete")
         return self._complete_table_and_action(text, line)
 
     @handle_bad_input

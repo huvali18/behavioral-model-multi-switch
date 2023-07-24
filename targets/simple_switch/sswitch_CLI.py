@@ -20,7 +20,7 @@
 #
 
 import runtime_CLI
-from runtime_CLI import UIn_Error
+from runtime_CLI import *
 
 from functools import wraps
 import os
@@ -128,6 +128,62 @@ class SimpleSwitchAPI(runtime_CLI.RuntimeAPI):
     def do_get_time_since_epoch(self, line):
         "Get time elapsed (in microseconds) since the switch clock's epoch: get_time_since_epoch"
         print(self.sswitch_client.get_time_since_epoch_us())
+
+    @handle_bad_input
+    def do_table_add_multi(self, line):
+        args = line.split()
+        self.at_least_n_args(args, 4)
+    
+        "Add entry to a match table: table_add <table name> <action name> <match fields> => <action parameters> [priority]"
+
+        table_name, action_name = args[1], args[2]
+        context = int(args[0]) - 1
+        table = self.get_res("table", table_name, ResType.table)
+        action = table.get_action(action_name)
+        if action is None:
+            raise UIn_Error(
+                "Table %s has no action %s" % (table_name, action_name)
+            )
+
+        if table.match_type in {MatchType.TERNARY, MatchType.RANGE}:
+            try:
+                priority = int(args.pop(-1))
+            except:
+                raise UIn_Error(
+                    "Table is ternary, but could not extract a valid priority from args"
+                )
+        else:
+            priority = 0
+
+        for idx, input_ in enumerate(args[3:]):
+            if input_ == "=>":
+                break
+        idx += 3
+        match_key = args[3:idx]
+        action_params = args[idx + 1:]
+        if len(match_key) != table.num_key_fields():
+            raise UIn_Error(
+                "Table %s needs %d key fields" % (
+                    table_name, table.num_key_fields())
+            )
+
+        runtime_data = self.parse_runtime_data(action, action_params)
+
+        match_key = parse_match_key(table, match_key)
+
+        print("Adding entry to", MatchType.to_str(
+            table.match_type), "match table", table_name)
+
+        # disable, maybe a verbose CLI option?
+        self.print_table_add(match_key, action_name, runtime_data)
+
+        entry_handle = self.client.bm_mt_add_entry(
+            context, table.name, match_key, action.name, runtime_data,
+            BmAddEntryOptions(priority=priority)
+        )
+
+        print("Entry has been added with handle", entry_handle)
+
 
 def main():
     args = runtime_CLI.get_parser().parse_args()

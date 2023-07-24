@@ -72,6 +72,7 @@ def get_json_config(standard_client=None, json_path=None, out=sys.stdout):
         try:
             my_print("Obtaining JSON from switch...\n")
             json_cfg = standard_client.bm_get_config()
+            print(json_cfg)
             my_print("Done\n")
         except:
             my_print("Error when requesting JSON config from switch\n")
