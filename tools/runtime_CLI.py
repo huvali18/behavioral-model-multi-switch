@@ -330,7 +330,7 @@ def load_json_str(json_str, architecture_spec=None):
                 action_prof.actions.update(table.actions)
                 action_prof.ref_cnt += 1
                 table.action_prof = action_prof
-
+            
             for j_key in j_table["key"]:
                 target = j_key["target"]
                 match_type = MatchType.from_str(j_key["match_type"])
@@ -724,6 +724,7 @@ def parse_pvs_value(input_str, bitwidth):
 
 
 def thrift_connect(thrift_ip, thrift_port, services):
+    print("thrift connect standard")
     return utils.thrift_connect(thrift_ip, thrift_port, services)
 
 
@@ -1196,7 +1197,6 @@ class RuntimeAPI(cmd.Cmd):
         print("Entry has been added with handle", entry_handle)
 
     def complete_table_add(self, text, line, start_index, end_index):
-        print("complete")
         return self._complete_table_and_action(text, line)
 
     @handle_bad_input

@@ -72,7 +72,6 @@ def get_json_config(standard_client=None, json_path=None, out=sys.stdout):
         try:
             my_print("Obtaining JSON from switch...\n")
             json_cfg = standard_client.bm_get_config()
-            print(json_cfg)
             my_print("Done\n")
         except:
             my_print("Error when requesting JSON config from switch\n")
@@ -80,6 +79,29 @@ def get_json_config(standard_client=None, json_path=None, out=sys.stdout):
         return json_cfg
 
 # services is [(service_name, client_class), ...]
+
+def get_json_config_context(context, standard_client=None, json_path=None, out=sys.stdout):
+        def my_print(s):
+            out.write(s)
+
+        if json_path:
+            if standard_client is not None:
+                check_JSON_md5(standard_client, json_path)
+            with open(json_path, encoding="utf-8") as f:
+                return f.read()
+        else:
+            assert(standard_client is not None)
+            try:
+                my_print("Obtaining JSON from switch_context...\n")
+                json_cfg = standard_client.bm_get_config_context(context)
+                my_print("Done\n")
+            except Exception as error:
+                my_print("Error when requesting JSON config from switch\n")
+                print(standard_client)
+                print(error)
+                sys.exit(1)
+            return json_cfg
+
 
 
 def thrift_connect(thrift_ip, thrift_port, services, out=sys.stdout):
@@ -103,6 +125,7 @@ def thrift_connect(thrift_ip, thrift_port, services, out=sys.stdout):
             bprotocol, service_name)
         client = service_cls(protocol)
         clients.append(client)
+        print(clients)
 
     # Connect!
     try:

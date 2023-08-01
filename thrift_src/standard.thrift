@@ -733,6 +733,7 @@ service Standard {
   void bm_reset_state()
 
   string bm_get_config()
+  string bm_get_config_context(1:i32 context)
   binary bm_get_config_md5()
 
   i32 bm_get_id_from_name(

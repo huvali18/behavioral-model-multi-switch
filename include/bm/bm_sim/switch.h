@@ -837,6 +837,7 @@ class SwitchWContexts : public DevMgr, public RuntimeInterface {
   swap_configs() override;
 
   std::string get_config() const override;
+  std::string get_config_context(int context) const;
   std::string get_config_md5() const override;
 
   P4Objects::IdLookupErrorCode p4objects_id_from_name(
@@ -979,6 +980,9 @@ class SwitchWContexts : public DevMgr, public RuntimeInterface {
   mutable boost::shared_mutex process_packet_mutex{};
 
   std::string current_config{"{}"};  // empty JSON config
+  std::string current_config_p2{"{}"}; 
+  std::string current_config_p3{"{}"}; 
+  std::string current_config_p4{"{}"}; 
   bool config_loaded{false};
   mutable std::condition_variable config_loaded_cv{};
   mutable std::mutex config_mutex{};

@@ -216,7 +216,7 @@ SwitchWContexts::init_objects_multi(const std::string json_path[4], device_id_t 
 
   for(cxt_id_t cxt_id = 0; cxt_id < nb_cxts; cxt_id++) {
     std::ifstream fs(json_path[cxt_id], std::ios::in);
-    std::cout << nb_cxts << "\n";
+    std::cout << cxt_id << "\n";
     if (!fs) {
       std::cout << "JSON input file " << json_path[cxt_id] << " cannot be opened\n";
       return 1;
@@ -227,8 +227,26 @@ SwitchWContexts::init_objects_multi(const std::string json_path[4], device_id_t 
 
     {
     std::unique_lock<std::mutex> config_lock(config_mutex);
-    current_config = std::string((std::istreambuf_iterator<char>(fs)),
+    int context = static_cast<int>(cxt_id);
+    switch(context) {
+      case 0:
+        current_config = std::string((std::istreambuf_iterator<char>(fs)),
                                  std::istreambuf_iterator<char>());
+        break;
+      case 1:
+        current_config_p2 = std::string((std::istreambuf_iterator<char>(fs)),
+                                 std::istreambuf_iterator<char>());
+        break;
+      case 2:
+        current_config_p3 = std::string((std::istreambuf_iterator<char>(fs)),
+                                 std::istreambuf_iterator<char>());
+        break;
+      case 3:
+        current_config_p4 = std::string((std::istreambuf_iterator<char>(fs)),
+                                 std::istreambuf_iterator<char>());
+        break;
+    }
+    
     config_loaded = true;
     }
 
@@ -553,6 +571,26 @@ SwitchWContexts::do_swap() {
 std::string
 SwitchWContexts::get_config() const {
   std::unique_lock<std::mutex> config_lock(config_mutex);
+  return current_config;
+}
+
+std::string
+SwitchWContexts::get_config_context(const int32_t context) const {
+  std::unique_lock<std::mutex> config_lock(config_mutex);
+  switch (context) {
+    case 0:
+      return current_config;
+      break;
+    case 1:
+      return current_config_p2;
+      break;
+    case 2:
+      return current_config_p3;
+      break;
+    case 3:
+      return current_config_p4;
+      break;
+  }
   return current_config;
 }
 
