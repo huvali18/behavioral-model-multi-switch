@@ -1,15 +1,32 @@
+/* Copyright 2013-present Barefoot Networks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-#ifndef MULTI_SWITCH_MULTI_SWITCH_H_
-#define MUTLI_SWITCH_MUTLI_SWITCH_H_
+/*
+ * Antonin Bas (antonin@barefootnetworks.com)
+ *
+ */
 
-#include <../../include/bm/bm_sim/queue.h>
-#include <../../include/bm/bm_sim/queueing.h>
-#include <../../include/bm/bm_sim/packet.h>
-#include <../../include/bm/bm_sim/switch.h>
-#include <../../include/bm/bm_sim/event_logger.h>
-#include <../../include/bm/bm_sim/simple_pre_lag.h>
-#include "queue_multi.cpp"
-#include "multi_context.h"
+#ifndef SIMPLE_SWITCH_SIMPLE_SWITCH_H_
+#define SIMPLE_SWITCH_SIMPLE_SWITCH_H_
+
+#include <bm/bm_sim/queue.h>
+#include <bm/bm_sim/queueing.h>
+#include <bm/bm_sim/packet.h>
+#include <bm/bm_sim/switch.h>
+#include <bm/bm_sim/event_logger.h>
+#include <bm/bm_sim/simple_pre_lag.h>
 
 #include <memory>
 #include <chrono>
@@ -29,7 +46,7 @@ using ts_res = std::chrono::microseconds;
 using std::chrono::duration_cast;
 using ticks = std::chrono::nanoseconds;
 
-using bm::MultiContexts;
+using bm::Switch;
 using bm::Queue;
 using bm::Packet;
 using bm::PHV;
@@ -42,7 +59,7 @@ using bm::FieldList;
 using bm::packet_id_t;
 using bm::p4object_id_t;
 
-class MultiSwitch : public MultiContexts {
+class SimpleSwitch : public Switch {
  public:
   using mirror_id_t = int;
 
@@ -64,11 +81,11 @@ class MultiSwitch : public MultiContexts {
 
  public:
   // by default, swapping is off
-  explicit MultiSwitch(bool enable_swap = false,
+  explicit SimpleSwitch(bool enable_swap = false,
                         port_t drop_port = default_drop_port,
                         size_t nb_queues_per_port = default_nb_queues_per_port);
 
-  ~MultiSwitch();
+  ~SimpleSwitch();
 
   int receive_(port_t port_num, const char *buffer, int len) override;
 
@@ -113,14 +130,13 @@ class MultiSwitch : public MultiContexts {
     return drop_port;
   }
 
-  MultiSwitch(const MultiSwitch &) = delete;
-  MultiSwitch &operator =(const MultiSwitch &) = delete;
-  MultiSwitch(MultiSwitch &&) = delete;
-  MultiSwitch &&operator =(MultiSwitch &&) = delete;
+  SimpleSwitch(const SimpleSwitch &) = delete;
+  SimpleSwitch &operator =(const SimpleSwitch &) = delete;
+  SimpleSwitch(SimpleSwitch &&) = delete;
+  SimpleSwitch &&operator =(SimpleSwitch &&) = delete;
 
  private:
-  static constexpr int nb_egress_threads = 4u;
-  static constexpr size_t nb_ingress_threads = 4u;
+  static constexpr size_t nb_egress_threads = 4u;
   static packet_id_t packet_id;
 
   class MirroringSessions;
@@ -149,7 +165,7 @@ class MultiSwitch : public MultiContexts {
   };
 
  private:
-  void ingress_thread(int worker_id);
+  void ingress_thread();
   void egress_thread(size_t worker_id);
   void transmit_thread();
 
@@ -170,21 +186,12 @@ class MultiSwitch : public MultiContexts {
  private:
   port_t drop_port;
   std::vector<std::thread> threads_;
-  std::shared_ptr<InputBuffer> input_buffer_t1;
-  std::shared_ptr<InputBuffer> input_buffer_t2;
-  std::shared_ptr<InputBuffer> input_buffer_t3;
-  std::shared_ptr<InputBuffer> input_buffer_t4;
+  std::unique_ptr<InputBuffer> input_buffer;
   // for these queues, the write operation is non-blocking and we drop the
   // packet if the queue is full
   size_t nb_queues_per_port;
-  bm::QueueingLogicPriRLMulti<std::unique_ptr<Packet>, EgressThreadMapper>
-  egress_buffers_t1;
-  bm::QueueingLogicPriRLMulti<std::unique_ptr<Packet>, EgressThreadMapper>
-  egress_buffers_t2;
-  bm::QueueingLogicPriRLMulti<std::unique_ptr<Packet>, EgressThreadMapper>
-  egress_buffers_t3;
-  bm::QueueingLogicPriRLMulti<std::unique_ptr<Packet>, EgressThreadMapper>
-  egress_buffers_t4;
+  bm::QueueingLogicPriRL<std::unique_ptr<Packet>, EgressThreadMapper>
+  egress_buffers;
   Queue<std::unique_ptr<Packet> > output_buffer;
   TransmitFn my_transmit_fn;
   std::shared_ptr<McSimplePreLAG> pre1;
@@ -196,4 +203,4 @@ class MultiSwitch : public MultiContexts {
   std::unique_ptr<MirroringSessions> mirroring_sessions;
 };
 
-#endif
+#endif  // SIMPLE_SWITCH_SIMPLE_SWITCH_H_
