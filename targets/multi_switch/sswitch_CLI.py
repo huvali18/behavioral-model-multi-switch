@@ -335,11 +335,11 @@ def load_json_str_multi(json_str, context_id, architecture_spec=None):
     # but that can be changed in the future if needed.
     suffix_count = Counter()
     for res_type, res_dict in [
-            (ResType.table, TABLES), (ResType.action_prof, ACTION_PROFS),
-            (ResType.action, ACTIONS), (ResType.meter_array, METER_ARRAYS),
-            (ResType.counter_array, COUNTER_ARRAYS),
-            (ResType.register_array, REGISTER_ARRAYS),
-            (ResType.parse_vset, PARSE_VSETS)]:
+            (ResType.table, context.TABLES), (ResType.action_prof, context.ACTION_PROFS),
+            (ResType.action, context.ACTIONS), (ResType.meter_array, context.METER_ARRAYS),
+            (ResType.counter_array, context.COUNTER_ARRAYS),
+            (ResType.register_array, context.REGISTER_ARRAYS),
+            (ResType.parse_vset, context.PARSE_VSETS)]:
         for name, res in res_dict.items():
             suffix = None
             for s in reversed(name.split('.')):
@@ -457,7 +457,7 @@ class SimpleSwitchAPI(runtime_CLI.RuntimeAPI):
         "List tables defined in the P4 program: show_tables"
         self.exactly_n_args(line.split(), 1)
         args = line.split()
-        context_id = int(args[0])
+        context_id = int(args[0]) - 1
         context = contexts[context_id]
         for table_name in sorted(context.TABLES):
             print(context.TABLES[table_name].table_str())
@@ -534,8 +534,9 @@ class SimpleSwitchAPI(runtime_CLI.RuntimeAPI):
         "Display entries in a match-table: table_dump <table name>"
         args = line.split()
         self.exactly_n_args(args, 2)
-        context_id = args[0]
+        context_id = int(args[0]) - 1
         table_name = args[1]
+        print(table_name)
         table = self.get_res_multi("table", table_name, ResType.table, context_id)
         entries = self.client.bm_mt_get_entries(context_id, table.name)
 
@@ -584,6 +585,9 @@ class SimpleSwitchAPI(runtime_CLI.RuntimeAPI):
     def get_res_multi(self, type_name, name, res_type, context_id):
         key = res_type, name
         context = contexts[context_id]
+        print(type_name)
+        print(name)
+        print(context.SUFFIX_LOOKUP_MAP)
         if key not in context.SUFFIX_LOOKUP_MAP:
             raise UIn_ResourceError(type_name, name)
         return context.SUFFIX_LOOKUP_MAP[key]

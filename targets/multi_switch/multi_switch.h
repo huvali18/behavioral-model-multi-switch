@@ -149,7 +149,7 @@ class MultiSwitch : public MultiContexts {
   };
 
  private:
-  void ingress_thread(int worker_id);
+  void ingress_thread(size_t worker_id);
   void egress_thread(size_t worker_id);
   void transmit_thread();
 

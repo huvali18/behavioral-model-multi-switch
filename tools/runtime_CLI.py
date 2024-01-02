@@ -949,6 +949,7 @@ class RuntimeAPI(cmd.Cmd):
     @handle_bad_input
     def do_show_tables(self, line):
         "List tables defined in the P4 program: show_tables"
+        print(SUFFIX_LOOKUP_MAP)
         self.exactly_n_args(line.split(), 0)
         for table_name in sorted(TABLES):
             print(TABLES[table_name].table_str())
@@ -1188,6 +1189,8 @@ class RuntimeAPI(cmd.Cmd):
 
         # disable, maybe a verbose CLI option?
         self.print_table_add(match_key, action_name, runtime_data)
+
+        print("test")
 
         entry_handle = self.client.bm_mt_add_entry(
             0, table.name, match_key, action.name, runtime_data,

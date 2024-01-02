@@ -320,6 +320,9 @@ MultiSwitch::~MultiSwitch() {
     // issue because at this stage the ingress thread has been sent a signal to
     // stop, and only egress clones can be sent to the buffer.
     while (egress_buffers_t1.push_front(i, 0, nullptr) == 0) continue;
+    while (egress_buffers_t2.push_front(i, 0, nullptr) == 0) continue;
+    while (egress_buffers_t3.push_front(i, 0, nullptr) == 0) continue;
+    while (egress_buffers_t4.push_front(i, 0, nullptr) == 0) continue;
   }
   output_buffer.push_front(nullptr);
   for (auto& thread_ : threads_) {
@@ -516,7 +519,7 @@ MultiSwitch::multicast(Packet *packet, unsigned int mgid) {
 }
 
 void
-MultiSwitch::ingress_thread(int worker_id) {
+MultiSwitch::ingress_thread(size_t worker_id) {
   PHV *phv;
 
   while (1) {
@@ -668,24 +671,24 @@ MultiSwitch::ingress_thread(int worker_id) {
       phv_copy->get_field("standard_metadata.packet_length")
           .set(ingress_packet_size);
 
-    switch(worker_id) {
-      case 0:
-        input_buffer_t1->push_front(
-            InputBuffer::PacketType::RESUBMIT, std::move(packet_copy));
-        break;
-      case 1:
-        input_buffer_t2->push_front(
-            InputBuffer::PacketType::RESUBMIT, std::move(packet_copy));
-        break;
-      case 2:
-        input_buffer_t3->push_front(
-            InputBuffer::PacketType::RESUBMIT, std::move(packet_copy));
-        break;
-      case 3:
-        input_buffer_t4->push_front(
-            InputBuffer::PacketType::RESUBMIT, std::move(packet_copy));
-        break;
-    }
+      switch(worker_id) {
+        case 0:
+          input_buffer_t1->push_front(
+              InputBuffer::PacketType::RESUBMIT, std::move(packet_copy));
+          break;
+        case 1:
+          input_buffer_t2->push_front(
+              InputBuffer::PacketType::RESUBMIT, std::move(packet_copy));
+          break;
+        case 2:
+          input_buffer_t3->push_front(
+              InputBuffer::PacketType::RESUBMIT, std::move(packet_copy));
+          break;
+        case 3:
+          input_buffer_t4->push_front(
+              InputBuffer::PacketType::RESUBMIT, std::move(packet_copy));
+          break;
+      }
       
       continue;
     }
@@ -722,7 +725,22 @@ MultiSwitch::egress_thread(size_t worker_id) {
     std::unique_ptr<Packet> packet;
     size_t port;
     size_t priority;
-    egress_buffers_t1.pop_back(&port, &priority, &packet);
+
+    switch(worker_id) {
+        case 0:
+          egress_buffers_t1.pop_back(&port, &priority, &packet);
+          break;
+        case 1:
+          egress_buffers_t2.pop_back(&port, &priority, &packet);
+          break;
+        case 2:
+          egress_buffers_t3.pop_back(&port, &priority, &packet);
+          break;
+        case 3:
+          egress_buffers_t4.pop_back(&port, &priority, &packet);
+        break;
+    }
+    
     if (packet == nullptr) break;
 
     Deparser *deparser = this->get_deparser(static_cast<size_t>(worker_id),"deparser");
