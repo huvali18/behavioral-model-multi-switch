@@ -212,7 +212,7 @@ MultiSwitch::MultiSwitch(bool enable_swap, port_t drop_port,
     pre4(new McSimplePreLAG()),
     start(clock::now()),
     mirroring_sessions(new MirroringSessions()) {
-  set_simple_switch(true);
+  set_multi_switch(true);
   add_component_multi<McSimplePreLAG>(0,pre1);
   add_component_multi<McSimplePreLAG>(1,pre2);
   add_component_multi<McSimplePreLAG>(2,pre3);

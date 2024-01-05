@@ -17,6 +17,7 @@
 #include "multi_switch.h"
 #include "register_access.h"
 
+
 namespace {
 
 struct hash_ex_multi {
@@ -181,23 +182,7 @@ MultiSwitch::MultiSwitch(bool enable_swap, port_t drop_port,
                            size_t nb_queues_per_port)
   : MultiContexts(enable_swap),
     drop_port(drop_port),
-    input_buffer_t1(new InputBuffer(
-        1024 /* normal capacity */, 1024 /* resubmit/recirc capacity */)),
-    input_buffer_t2(new InputBuffer(
-        1024 /* normal capacity */, 1024 /* resubmit/recirc capacity */)),
-    input_buffer_t3(new InputBuffer(
-        1024 /* normal capacity */, 1024 /* resubmit/recirc capacity */)),
-    input_buffer_t4(new InputBuffer(
-        1024 /* normal capacity */, 1024 /* resubmit/recirc capacity */)),
     nb_queues_per_port(nb_queues_per_port),
-    egress_buffers_t1(64, EgressThreadMapper(nb_egress_threads),
-                   nb_queues_per_port),
-    egress_buffers_t2(64, EgressThreadMapper(nb_egress_threads),
-                   nb_queues_per_port),
-    egress_buffers_t3(64, EgressThreadMapper(nb_egress_threads),
-                   nb_queues_per_port),
-    egress_buffers_t4(64, EgressThreadMapper(nb_egress_threads),
-                   nb_queues_per_port),
     output_buffer(128),
     // cannot use std::bind because of a clang bug
     // https://stackoverflow.com/questions/32030141/is-this-incorrect-use-of-stdbind-or-a-compiler-bug
@@ -206,17 +191,18 @@ MultiSwitch::MultiSwitch(bool enable_swap, port_t drop_port,
         _BM_UNUSED(pkt_id);
         this->transmit_fn(port_num, buffer, len);
     }),
-    pre1(new McSimplePreLAG()),
-    pre2(new McSimplePreLAG()),
-    pre3(new McSimplePreLAG()),
-    pre4(new McSimplePreLAG()),
     start(clock::now()),
     mirroring_sessions(new MirroringSessions()) {
-  set_simple_switch(true);
-  add_component_multi<McSimplePreLAG>(0,pre1);
-  add_component_multi<McSimplePreLAG>(1,pre2);
-  add_component_multi<McSimplePreLAG>(2,pre3);
-  add_component_multi<McSimplePreLAG>(3,pre4);
+  
+  for(int i = 0; i < 4; i++) {
+    input_buffers.push_back(std::make_shared<InputBuffer>(1024 /* normal capacity */, 1024 /* resubmit/recirc capacity */));
+    EgressThreadMapper mapper(nb_egress_threads);
+    egress_buffers.push_back(std::make_shared<bm::QueueingLogicPriRLMulti<std::unique_ptr<Packet>, EgressThreadMapper>>(64, mapper, nb_queues_per_port));
+    pres.push_back(std::make_shared<McSimplePreLAG>());
+    add_component_multi<McSimplePreLAG>(i,pres.at(i));
+  }
+
+  set_multi_switch(true);
  
 
   add_required_field("standard_metadata", "ingress_port");
@@ -264,19 +250,19 @@ MultiSwitch::receive_(port_t port_num, const char *buffer, int len) {
   }
   
   if(port_num < 8) {
-      input_buffer_t1->push_front(
+      input_buffers.at(0)->push_front(
       InputBuffer::PacketType::NORMAL, std::move(packet));
   }
   else if (port_num < 16) {
-      input_buffer_t2->push_front(
+      input_buffers.at(1)->push_front(
       InputBuffer::PacketType::NORMAL, std::move(packet));
   }
   else if (port_num < 24) {
-      input_buffer_t3->push_front(
+      input_buffers.at(2)->push_front(
       InputBuffer::PacketType::NORMAL, std::move(packet));
   }
   else if (port_num < 32) {
-      input_buffer_t4->push_front(
+      input_buffers.at(3)->push_front(
       InputBuffer::PacketType::NORMAL, std::move(packet));
   }
   
@@ -305,24 +291,24 @@ MultiSwitch::swap_notify_() {
 }
 
 MultiSwitch::~MultiSwitch() {
-  input_buffer_t1->push_front(
-    InputBuffer::PacketType::SENTINEL, nullptr);
-  input_buffer_t2->push_front(
-    InputBuffer::PacketType::SENTINEL, nullptr);
-  input_buffer_t3->push_front(
-    InputBuffer::PacketType::SENTINEL, nullptr);
-  input_buffer_t4->push_front(
-    InputBuffer::PacketType::SENTINEL, nullptr);
+  input_buffers.at(0)->push_front(
+      InputBuffer::PacketType::SENTINEL, nullptr);
+  input_buffers.at(1)->push_front(
+      InputBuffer::PacketType::SENTINEL, nullptr);
+  input_buffers.at(2)->push_front(
+      InputBuffer::PacketType::SENTINEL, nullptr);
+  input_buffers.at(3)->push_front(
+      InputBuffer::PacketType::SENTINEL, nullptr);
   
   for (size_t i = 0; i < nb_egress_threads; i++) {
     // The push_front call is called inside a while loop because there is no
     // guarantee that the sentinel was enqueued otherwise. It should not be an
     // issue because at this stage the ingress thread has been sent a signal to
     // stop, and only egress clones can be sent to the buffer.
-    while (egress_buffers_t1.push_front(i, 0, nullptr) == 0) continue;
-    while (egress_buffers_t2.push_front(i, 0, nullptr) == 0) continue;
-    while (egress_buffers_t3.push_front(i, 0, nullptr) == 0) continue;
-    while (egress_buffers_t4.push_front(i, 0, nullptr) == 0) continue;
+    while (egress_buffers.at(0)->push_front(i, 0, nullptr) == 0) continue;
+    while (egress_buffers.at(1)->push_front(i, 0, nullptr) == 0) continue;
+    while (egress_buffers.at(2)->push_front(i, 0, nullptr) == 0) continue;
+    while (egress_buffers.at(3)->push_front(i, 0, nullptr) == 0) continue;
   }
   output_buffer.push_front(nullptr);
   for (auto& thread_ : threads_) {
@@ -356,38 +342,38 @@ MultiSwitch::mirroring_get_session(mirror_id_t mirror_id,
 int
 MultiSwitch::set_egress_priority_queue_depth(size_t port, size_t priority,
                                               const size_t depth_pkts) {
-  egress_buffers_t1.set_capacity(port, priority, depth_pkts);
+  egress_buffers.at(0)->set_capacity(port, priority, depth_pkts);
   return 0;
 }
 
 int
 MultiSwitch::set_egress_queue_depth(size_t port, const size_t depth_pkts) {
-  egress_buffers_t1.set_capacity(port, depth_pkts);
+  egress_buffers.at(0)->set_capacity(port, depth_pkts);
   return 0;
 }
 
 int
 MultiSwitch::set_all_egress_queue_depths(const size_t depth_pkts) {
-  egress_buffers_t1.set_capacity_for_all(depth_pkts);
+  egress_buffers.at(0)->set_capacity_for_all(depth_pkts);
   return 0;
 }
 
 int
 MultiSwitch::set_egress_priority_queue_rate(size_t port, size_t priority,
                                              const uint64_t rate_pps) {
-  egress_buffers_t1.set_rate(port, priority, rate_pps);
+  egress_buffers.at(0)->set_rate(port, priority, rate_pps);
   return 0;
 }
 
 int
 MultiSwitch::set_egress_queue_rate(size_t port, const uint64_t rate_pps) {
-  egress_buffers_t1.set_rate(port, rate_pps);
+  egress_buffers.at(0)->set_rate(port, rate_pps);
   return 0;
 }
 
 int
 MultiSwitch::set_all_egress_queue_rates(const uint64_t rate_pps) {
-  egress_buffers_t1.set_rate_for_all(rate_pps);
+  egress_buffers.at(0)->set_rate_for_all(rate_pps);
   return 0;
 }
 
@@ -435,7 +421,7 @@ MultiSwitch::enqueue(port_t egress_port, std::unique_ptr<Packet> &&packet) {
     if (with_queueing_metadata) {
       phv->get_field("queueing_metadata.enq_timestamp").set(get_ts().count());
       phv->get_field("queueing_metadata.enq_qdepth")
-          .set(egress_buffers_t1.size(egress_port));
+          .set(egress_buffers.at(0)->size(egress_port));
     }
 
     size_t priority = phv->has_field(SSWITCH_PRIORITY_QUEUEING_SRC) ?
@@ -446,22 +432,22 @@ MultiSwitch::enqueue(port_t egress_port, std::unique_ptr<Packet> &&packet) {
     }
 
     if(egress_port < 8) {
-        egress_buffers_t1.push_front(
+        egress_buffers.at(0)->push_front(
           egress_port, nb_queues_per_port - 1 - priority,
           std::move(packet));
     }
     else if (egress_port < 16) {
-        egress_buffers_t2.push_front(
+        egress_buffers.at(1)->push_front(
           egress_port, nb_queues_per_port - 1 - priority,
           std::move(packet));
     }
     else if (egress_port < 24) {
-        egress_buffers_t3.push_front(
+        egress_buffers.at(2)->push_front(
           egress_port, nb_queues_per_port - 1 - priority,
           std::move(packet));
     }
     else if (egress_port < 32) {
-        egress_buffers_t4.push_front(
+        egress_buffers.at(3)->push_front(
           egress_port, nb_queues_per_port - 1 - priority,
           std::move(packet));
     }
@@ -503,7 +489,7 @@ void
 MultiSwitch::multicast(Packet *packet, unsigned int mgid) {
   auto *phv = packet->get_phv();
   auto &f_rid = phv->get_field("intrinsic_metadata.egress_rid");
-  const auto pre_out = pre1->replicate({mgid});
+  const auto pre_out = pres.at(0)->replicate({mgid});
   auto packet_size =
       packet->get_register(RegisterAccess::PACKET_LENGTH_REG_IDX);
   for (const auto &out : pre_out) {
@@ -525,20 +511,7 @@ MultiSwitch::ingress_thread(size_t worker_id) {
   while (1) {
     std::unique_ptr<Packet> packet;
 
-    switch(worker_id) {
-      case 0:
-        input_buffer_t1->pop_back(&packet);
-        break;
-      case 1:
-        input_buffer_t2->pop_back(&packet);
-        break;
-      case 2:
-        input_buffer_t3->pop_back(&packet);
-        break;
-      case 3:
-        input_buffer_t4->pop_back(&packet);
-        break;
-    }
+    input_buffers.at(worker_id)->pop_back(&packet);
     
     if (packet == nullptr) break;
 
@@ -671,24 +644,9 @@ MultiSwitch::ingress_thread(size_t worker_id) {
       phv_copy->get_field("standard_metadata.packet_length")
           .set(ingress_packet_size);
 
-      switch(worker_id) {
-        case 0:
-          input_buffer_t1->push_front(
-              InputBuffer::PacketType::RESUBMIT, std::move(packet_copy));
-          break;
-        case 1:
-          input_buffer_t2->push_front(
-              InputBuffer::PacketType::RESUBMIT, std::move(packet_copy));
-          break;
-        case 2:
-          input_buffer_t3->push_front(
-              InputBuffer::PacketType::RESUBMIT, std::move(packet_copy));
-          break;
-        case 3:
-          input_buffer_t4->push_front(
-              InputBuffer::PacketType::RESUBMIT, std::move(packet_copy));
-          break;
-      }
+      input_buffers.at(worker_id)->push_front(
+          InputBuffer::PacketType::RESUBMIT, std::move(packet_copy));
+     
       
       continue;
     }
@@ -726,20 +684,7 @@ MultiSwitch::egress_thread(size_t worker_id) {
     size_t port;
     size_t priority;
 
-    switch(worker_id) {
-        case 0:
-          egress_buffers_t1.pop_back(&port, &priority, &packet);
-          break;
-        case 1:
-          egress_buffers_t2.pop_back(&port, &priority, &packet);
-          break;
-        case 2:
-          egress_buffers_t3.pop_back(&port, &priority, &packet);
-          break;
-        case 3:
-          egress_buffers_t4.pop_back(&port, &priority, &packet);
-        break;
-    }
+    egress_buffers.at(worker_id)->pop_back(&port, &priority, &packet);
     
     if (packet == nullptr) break;
 
@@ -759,7 +704,7 @@ MultiSwitch::egress_thread(size_t worker_id) {
       phv->get_field("queueing_metadata.deq_timedelta").set(
           get_ts().count() - enq_timestamp);
       phv->get_field("queueing_metadata.deq_qdepth").set(
-          egress_buffers_t1.size(port));
+          egress_buffers.at(0)->size(port));
       if (phv->has_field("queueing_metadata.qid")) {
         auto &qid_f = phv->get_field("queueing_metadata.qid");
         qid_f.set(nb_queues_per_port - 1 - priority);
@@ -852,24 +797,9 @@ MultiSwitch::egress_thread(size_t worker_id) {
       // to fold this functionality into the Packet class?
       packet_copy->set_ingress_length(packet_size);
       
-      switch(worker_id) {
-        case 0:
-          input_buffer_t1->push_front(
-              InputBuffer::PacketType::RECIRCULATE, std::move(packet_copy));
-          break;
-        case 1:
-          input_buffer_t2->push_front(
-              InputBuffer::PacketType::RECIRCULATE, std::move(packet_copy));
-          break;
-        case 2:
-          input_buffer_t3->push_front(
-              InputBuffer::PacketType::RECIRCULATE, std::move(packet_copy));
-          break;
-        case 3:
-          input_buffer_t4->push_front(
-              InputBuffer::PacketType::RECIRCULATE, std::move(packet_copy));
-        break;
-      }
+
+      input_buffers.at(worker_id)->push_front(
+          InputBuffer::PacketType::RECIRCULATE, std::move(packet_copy));
       
       continue;
     }

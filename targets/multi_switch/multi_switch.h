@@ -170,27 +170,15 @@ class MultiSwitch : public MultiContexts {
  private:
   port_t drop_port;
   std::vector<std::thread> threads_;
-  std::shared_ptr<InputBuffer> input_buffer_t1;
-  std::shared_ptr<InputBuffer> input_buffer_t2;
-  std::shared_ptr<InputBuffer> input_buffer_t3;
-  std::shared_ptr<InputBuffer> input_buffer_t4;
+  std::vector<std::shared_ptr<InputBuffer>> input_buffers;
+  std::vector<std::shared_ptr<bm::QueueingLogicPriRLMulti<std::unique_ptr<Packet>, EgressThreadMapper>>> egress_buffers;
+  std::vector<std::shared_ptr<McSimplePreLAG>> pres;
   // for these queues, the write operation is non-blocking and we drop the
   // packet if the queue is full
   size_t nb_queues_per_port;
-  bm::QueueingLogicPriRLMulti<std::unique_ptr<Packet>, EgressThreadMapper>
-  egress_buffers_t1;
-  bm::QueueingLogicPriRLMulti<std::unique_ptr<Packet>, EgressThreadMapper>
-  egress_buffers_t2;
-  bm::QueueingLogicPriRLMulti<std::unique_ptr<Packet>, EgressThreadMapper>
-  egress_buffers_t3;
-  bm::QueueingLogicPriRLMulti<std::unique_ptr<Packet>, EgressThreadMapper>
-  egress_buffers_t4;
+
   Queue<std::unique_ptr<Packet> > output_buffer;
   TransmitFn my_transmit_fn;
-  std::shared_ptr<McSimplePreLAG> pre1;
-  std::shared_ptr<McSimplePreLAG> pre2;
-  std::shared_ptr<McSimplePreLAG> pre3;
-  std::shared_ptr<McSimplePreLAG> pre4;
   clock::time_point start;
   bool with_queueing_metadata{false};
   std::unique_ptr<MirroringSessions> mirroring_sessions;

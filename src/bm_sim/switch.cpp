@@ -340,7 +340,7 @@ SwitchWContexts::init_from_options_parser(
   if (parser.no_p4)
     status = init_objects_empty(parser.device_id, transport);
   else
-    if (get_simple_switch()) {
+    if (get_multi_switch()) {
       status = init_objects_multi(parser.config_pipes, parser.device_id, transport);
     }
     else {

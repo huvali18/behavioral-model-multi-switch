@@ -113,12 +113,12 @@ class SwitchWContexts : public DevMgr, public RuntimeInterface {
     return &contexts.at(cxt_id);
   }
 
-  bool set_simple_switch(bool value) {
-    return simple_switch = value;
+  bool set_multi_switch(bool value) {
+    return multi_switch = value;
   }
 
-  bool get_simple_switch() {
-    return simple_switch;
+  bool get_multi_switch() {
+    return multi_switch;
   }
 
   int receive(port_t port_num, const char *buffer, int len);
@@ -968,7 +968,7 @@ class SwitchWContexts : public DevMgr, public RuntimeInterface {
 
   int thrift_port{};
 
-  bool simple_switch{false};
+  bool multi_switch{false};
 
   device_id_t device_id{};
 
