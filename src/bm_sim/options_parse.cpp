@@ -180,8 +180,6 @@ OptionsParser::parse(int argc, char *argv[], TargetParserIface *tp,
 
   options_provided.clear();
 
-  std::cout << options;
-
   po::variables_map vm;
   auto parser = po::command_line_parser(argc, argv);
   parser.options(options).positional(positional);

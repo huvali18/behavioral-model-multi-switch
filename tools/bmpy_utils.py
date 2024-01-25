@@ -125,7 +125,6 @@ def thrift_connect(thrift_ip, thrift_port, services, out=sys.stdout):
             bprotocol, service_name)
         client = service_cls(protocol)
         clients.append(client)
-        print(clients)
 
     # Connect!
     try:

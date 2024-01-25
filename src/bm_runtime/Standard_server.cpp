@@ -1195,7 +1195,6 @@ public:
   }
 
   void bm_get_config_context(std::string& _return, const int32_t context) {
-    std::cout << "config_context\n";
     Logger::get()->trace("bm_get_config");
     _return.append(switch_->get_config_context(context));
   }

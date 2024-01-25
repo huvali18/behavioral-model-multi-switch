@@ -184,6 +184,8 @@ MultiSwitch::MultiSwitch(bool enable_swap, port_t drop_port,
     drop_port(drop_port),
     nb_queues_per_port(nb_queues_per_port),
     output_buffer(128),
+    egress_buffers_t1(64, EgressThreadMapper(nb_egress_threads),
+                   nb_queues_per_port),
     // cannot use std::bind because of a clang bug
     // https://stackoverflow.com/questions/32030141/is-this-incorrect-use-of-stdbind-or-a-compiler-bug
     my_transmit_fn([this](port_t port_num, packet_id_t pkt_id,
@@ -201,6 +203,8 @@ MultiSwitch::MultiSwitch(bool enable_swap, port_t drop_port,
     pres.push_back(std::make_shared<McSimplePreLAG>());
     add_component_multi<McSimplePreLAG>(i,pres.at(i));
   }
+
+
 
   set_multi_switch(true);
  
@@ -223,8 +227,14 @@ MultiSwitch::receive_(port_t port_num, const char *buffer, int len) {
   // we limit the packet buffer to original size + 512 bytes, which means we
   // cannot add more than 512 bytes of header data to the packet, which should
   // be more than enough
+
+  std::cout << "new_packet_ptr\n";
+  std::cout << "len: " << len << "\n";
+  std::cout << "buffer: " << buffer << "\n";
   auto packet = new_packet_ptr(port_num, packet_id++, len,
                                bm::PacketBuffer(len + 512, buffer, len));
+
+  
 
   BMELOG(packet_in, *packet);
 
@@ -248,6 +258,8 @@ MultiSwitch::receive_(port_t port_num, const char *buffer, int len) {
     phv->get_field("intrinsic_metadata.ingress_global_timestamp")
         .set(get_ts().count());
   }
+
+  std::cout << "Ingress port: " << port_num << "\n";
   
   if(port_num < 8) {
       input_buffers.at(0)->push_front(
@@ -431,6 +443,8 @@ MultiSwitch::enqueue(port_t egress_port, std::unique_ptr<Packet> &&packet) {
       return;
     }
 
+    std::cout << "Enqueue Egress port " << egress_port << "\n";
+
     if(egress_port < 8) {
         egress_buffers.at(0)->push_front(
           egress_port, nb_queues_per_port - 1 - priority,
@@ -447,9 +461,12 @@ MultiSwitch::enqueue(port_t egress_port, std::unique_ptr<Packet> &&packet) {
           std::move(packet));
     }
     else if (egress_port < 32) {
-        egress_buffers.at(3)->push_front(
+        egress_buffers_t1.push_front(
           egress_port, nb_queues_per_port - 1 - priority,
           std::move(packet));
+        /*egress_buffers.at(3)->push_front(
+          egress_port, nb_queues_per_port - 1 - priority,
+          std::move(packet));*/
     }
 }
 
@@ -511,13 +528,19 @@ MultiSwitch::ingress_thread(size_t worker_id) {
   while (1) {
     std::unique_ptr<Packet> packet;
 
+    std::cout << "Ingress worker: " << worker_id << "\n";
+
     input_buffers.at(worker_id)->pop_back(&packet);
     
     if (packet == nullptr) break;
 
+    std::cout << "Ingress worker " << worker_id << " recieved packet\n";
+
     // TODO(antonin): only update these if swapping actually happened?
     Parser *parser = this->get_parser(static_cast<size_t>(worker_id), "parser");
     Pipeline *ingress_mau = this->get_pipeline(static_cast<size_t>(worker_id), "ingress");
+
+    std::cout << "past\n";
 
     phv = packet->get_phv();
 
@@ -661,6 +684,7 @@ MultiSwitch::ingress_thread(size_t worker_id) {
       continue;
     }
 
+    std::cout << "past2\n";
     port_t egress_port = egress_spec;
     BMLOG_DEBUG_PKT(*packet, "Egress port is {}", egress_port);
 
@@ -684,9 +708,17 @@ MultiSwitch::egress_thread(size_t worker_id) {
     size_t port;
     size_t priority;
 
-    egress_buffers.at(worker_id)->pop_back(&port, &priority, &packet);
-    
+    std::cout << "Egress worker: " << worker_id << "\n";
+
+    if(worker_id == 3) {
+      egress_buffers_t1.pop_back(&port, &priority, &packet);
+    }
+    else {
+      egress_buffers.at(worker_id)->pop_back(&port, &priority, &packet);
+    }
     if (packet == nullptr) break;
+
+    std::cout << "Egress worker " << worker_id << "recieved packet";
 
     Deparser *deparser = this->get_deparser(static_cast<size_t>(worker_id),"deparser");
     Pipeline *egress_mau = this->get_pipeline(static_cast<size_t>(worker_id),"egress");

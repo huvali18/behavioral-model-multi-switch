@@ -574,7 +574,6 @@ class SimpleSwitchAPI(runtime_CLI.RuntimeAPI):
         return services
     
     def thrift_connect_multi(thrift_ip, thrift_port, services):
-        print("thrift connect standard")
         return utils.thrift_connect(thrift_ip, thrift_port, services)
     
     def load_json_config_multi(standard_client=None, json_path=None, architecture_spec=None):
@@ -585,9 +584,6 @@ class SimpleSwitchAPI(runtime_CLI.RuntimeAPI):
     def get_res_multi(self, type_name, name, res_type, context_id):
         key = res_type, name
         context = contexts[context_id]
-        print(type_name)
-        print(name)
-        print(context.SUFFIX_LOOKUP_MAP)
         if key not in context.SUFFIX_LOOKUP_MAP:
             raise UIn_ResourceError(type_name, name)
         return context.SUFFIX_LOOKUP_MAP[key]

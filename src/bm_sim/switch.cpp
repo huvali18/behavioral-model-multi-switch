@@ -216,7 +216,6 @@ SwitchWContexts::init_objects_multi(const std::string json_path[4], device_id_t 
 
   for(cxt_id_t cxt_id = 0; cxt_id < nb_cxts; cxt_id++) {
     std::ifstream fs(json_path[cxt_id], std::ios::in);
-    std::cout << cxt_id << "\n";
     if (!fs) {
       std::cout << "JSON input file " << json_path[cxt_id] << " cannot be opened\n";
       return 1;
