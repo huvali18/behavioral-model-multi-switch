@@ -1524,25 +1524,3 @@ V1Switch(my_parser(),
          my_egress(),
          my_compute_checksum(),
          my_deparser()) main;
-
-
-V1Switch(my_parser(),
-         my_verify_checksum(),
-         my_ingress(),
-         my_egress(),
-         my_compute_checksum(),
-         my_deparser()) main2;
-
-V1Switch(my_parser(),
-         my_verify_checksum(),
-         my_ingress(),
-         my_egress(),
-         my_compute_checksum(),
-         my_deparser()) main3;
-
-V1Switch(my_parser(),
-         my_verify_checksum(),
-         my_ingress(),
-         my_egress(),
-         my_compute_checksum(),
-         my_deparser()) main4;

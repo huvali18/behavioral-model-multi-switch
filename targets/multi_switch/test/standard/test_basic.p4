@@ -1,3 +1,4 @@
+/* -*- P4_16 -*- */
 #include <core.p4>
 #include <v1model.p4>
 
@@ -126,24 +127,6 @@ control MyEgress(inout headers hdr,
     apply {  }
 }
 
-control Pipe2Egress(inout headers hdr,
-                 inout metadata meta,
-                 inout standard_metadata_t standard_metadata) {
-    apply {  }
-}
-
-control Egressglobal(inout headers hdr,
-                 inout metadata meta,
-                 inout standard_metadata_t standard_metadata) {
-    apply {  }
-}
-
-control Egresspipe3(inout headers hdr,
-                 inout metadata meta,
-                 inout standard_metadata_t standard_metadata) {
-    apply {  }
-}
-
 /*************************************************************************
 *************   C H E C K S U M    C O M P U T A T I O N   **************
 *************************************************************************/
@@ -172,16 +155,7 @@ control MyComputeChecksum(inout headers  hdr, inout metadata meta) {
 ***********************  D E P A R S E R  *******************************
 *************************************************************************/
 
-@multipipe("pipe1Deparser")
 control MyDeparser(packet_out packet, in headers hdr) {
-    apply {
-        packet.emit(hdr.ethernet);
-        packet.emit(hdr.ipv4);
-    }
-}
-
-@multipipe("pipe1Deparser")
-control TWODeparser(packet_out packet, in headers hdr) {
     apply {
         packet.emit(hdr.ethernet);
         packet.emit(hdr.ipv4);
@@ -192,7 +166,6 @@ control TWODeparser(packet_out packet, in headers hdr) {
 ***********************  S W I T C H  *******************************
 *************************************************************************/
 
-@multipipe("pipe1")
 V1Switch(
 MyParser(),
 MyVerifyChecksum(),
@@ -200,37 +173,4 @@ MyIngress(),
 MyEgress(),
 MyComputeChecksum(),
 MyDeparser()
-) main1;
-
-@multipipe("pipe2")
-V1Switch(
-MyParser(),
-MyVerifyChecksum(),
-MyIngress(),
-MyEgress(),
-MyComputeChecksum(),
-MyDeparser()
-) main2;
-
-@multipipe("pipe3")
-V1Switch(
-MyParser(),
-MyVerifyChecksum(),
-MyIngress(),
-MyEgress(),
-MyComputeChecksum(),
-MyDeparser()
-) main3;
-
-@multipipe("pipe4")
-V1Switch(
-MyParser(),
-MyVerifyChecksum(),
-MyIngress(),
-MyEgress(),
-MyComputeChecksum(),
-MyDeparser()
-) main4;
-
-
-
+) main;

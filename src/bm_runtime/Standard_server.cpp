@@ -229,6 +229,7 @@ public:
     MatchErrorCode error_code = switch_->mt_add_entry(
         cxt_id, table_name, params, action_name,
         std::move(data), &entry_handle, options.priority);
+    std::cout << "error_code: " << match_error_code_to_string(error_code) << "\n";
     if(error_code != MatchErrorCode::SUCCESS) {
       InvalidTableOperation ito;
       ito.code = get_exception_code(error_code);

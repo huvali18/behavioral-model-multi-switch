@@ -171,14 +171,14 @@ class MultiSwitch : public MultiContexts {
   port_t drop_port;
   std::vector<std::thread> threads_;
   std::vector<std::shared_ptr<InputBuffer>> input_buffers;
-  std::vector<std::shared_ptr<bm::QueueingLogicPriRLMulti<std::unique_ptr<Packet>, EgressThreadMapper>>> egress_buffers;
+  std::vector<std::shared_ptr<Queue<std::unique_ptr<Packet>>>> egress_buffers;
+  bm::QueueingLogicPriRL<std::unique_ptr<Packet>, EgressThreadMapper>
+  egress_buffers_t1;
   std::vector<std::shared_ptr<McSimplePreLAG>> pres;
-  bm::QueueingLogicPriRLMulti<std::unique_ptr<Packet>, EgressThreadMapper> egress_buffers_t1;
   // for these queues, the write operation is non-blocking and we drop the
   // packet if the queue is full
   size_t nb_queues_per_port;
-
-  Queue<std::unique_ptr<Packet> > output_buffer;
+  Queue<std::unique_ptr<Packet>> output_buffer;
   TransmitFn my_transmit_fn;
   clock::time_point start;
   bool with_queueing_metadata{false};

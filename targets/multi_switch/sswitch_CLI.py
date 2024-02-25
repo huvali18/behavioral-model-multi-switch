@@ -358,6 +358,42 @@ def handle_bad_input(f):
     def handle(*args, **kwargs):
         try:
             return f(*args, **kwargs)
+        except UIn_MatchKeyError as e:
+            print("Invalid match key:", e)
+        except UIn_RuntimeDataError as e:
+            print("Invalid runtime data:", e)
+        except UIn_Error as e:
+            print("Error:", e)
+        except InvalidTableOperation as e:
+            error = TableOperationErrorCode._VALUES_TO_NAMES[e.code]
+            print("Invalid table operation ({})".format(error))
+        except InvalidCounterOperation as e:
+            error = CounterOperationErrorCode._VALUES_TO_NAMES[e.code]
+            print("Invalid counter operation ({})".format(error))
+        except InvalidMeterOperation as e:
+            error = MeterOperationErrorCode._VALUES_TO_NAMES[e.code]
+            print("Invalid meter operation ({})".format(error))
+        except InvalidRegisterOperation as e:
+            error = RegisterOperationErrorCode._VALUES_TO_NAMES[e.code]
+            print("Invalid register operation ({})".format(error))
+        except InvalidLearnOperation as e:
+            error = LearnOperationErrorCode._VALUES_TO_NAMES[e.code]
+            print("Invalid learn operation ({})".format(error))
+        except InvalidSwapOperation as e:
+            error = SwapOperationErrorCode._VALUES_TO_NAMES[e.code]
+            print("Invalid swap operation ({})".format(error))
+        except InvalidDevMgrOperation as e:
+            error = DevMgrErrorCode._VALUES_TO_NAMES[e.code]
+            print("Invalid device manager operation ({})".format(error))
+        except InvalidCrcOperation as e:
+            error = CrcErrorCode._VALUES_TO_NAMES[e.code]
+            print("Invalid crc operation ({})".format(error))
+        except InvalidToeplitzHashOperation as e:
+            error = ToeplitzHashErrorCode._VALUES_TO_NAMES[e.code]
+            print("Invalid Toeplitz hash operation ({})".format(error))
+        except InvalidParseVSetOperation as e:
+            error = ParseVSetOperationErrorCode._VALUES_TO_NAMES[e.code]
+            print("Invalid parser value set operation ({})".format(error))
         except InvalidMirroringOperation as e:
             error = MirroringOperationErrorCode._VALUES_TO_NAMES[e.code]
             print("Invalid mirroring operation (%s)" % error)

@@ -216,18 +216,10 @@ SimpleSwitch::SimpleSwitch(bool enable_swap, port_t drop_port,
         _BM_UNUSED(pkt_id);
         this->transmit_fn(port_num, buffer, len);
     }),
-    pre1(new McSimplePreLAG()),
-    pre2(new McSimplePreLAG()),
-    pre3(new McSimplePreLAG()),
-    pre4(new McSimplePreLAG()),
+    pre(new McSimplePreLAG()),
     start(clock::now()),
     mirroring_sessions(new MirroringSessions()) {
-  set_multi_switch(true);
-  add_component_multi<McSimplePreLAG>(0,pre1);
-  add_component_multi<McSimplePreLAG>(1,pre2);
-  add_component_multi<McSimplePreLAG>(2,pre3);
-  add_component_multi<McSimplePreLAG>(3,pre4);
- 
+  add_component<McSimplePreLAG>(pre);
 
   add_required_field("standard_metadata", "ingress_port");
   add_required_field("standard_metadata", "packet_length");
@@ -467,7 +459,7 @@ void
 SimpleSwitch::multicast(Packet *packet, unsigned int mgid) {
   auto *phv = packet->get_phv();
   auto &f_rid = phv->get_field("intrinsic_metadata.egress_rid");
-  const auto pre_out = pre1->replicate({mgid});
+  const auto pre_out = pre->replicate({mgid});
   auto packet_size =
       packet->get_register(RegisterAccess::PACKET_LENGTH_REG_IDX);
   for (const auto &out : pre_out) {

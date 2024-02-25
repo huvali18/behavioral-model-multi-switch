@@ -2,7 +2,7 @@
   "header_types" : [
     {
       "name" : "scalars_0",
-      "id" : 4,
+      "id" : 0,
       "fields" : [
         ["tmp", 1, false],
         ["tmp_0", 1, false],
@@ -11,7 +11,7 @@
     },
     {
       "name" : "standard_metadata",
-      "id" : 5,
+      "id" : 1,
       "fields" : [
         ["ingress_port", 9, false],
         ["egress_spec", 9, false],
@@ -34,7 +34,7 @@
     },
     {
       "name" : "ethernet_t",
-      "id" : 6,
+      "id" : 2,
       "fields" : [
         ["dst_addr", 48, false],
         ["src_addr", 48, false],
@@ -43,7 +43,7 @@
     },
     {
       "name" : "ipv4_t",
-      "id" : 7,
+      "id" : 3,
       "fields" : [
         ["version", 4, false],
         ["ihl", 4, false],
@@ -63,28 +63,28 @@
   "headers" : [
     {
       "name" : "scalars",
-      "id" : 4,
+      "id" : 0,
       "header_type" : "scalars_0",
       "metadata" : true,
       "pi_omit" : true
     },
     {
       "name" : "standard_metadata",
-      "id" : 5,
+      "id" : 1,
       "header_type" : "standard_metadata",
       "metadata" : true,
       "pi_omit" : true
     },
     {
       "name" : "ethernet",
-      "id" : 6,
+      "id" : 2,
       "header_type" : "ethernet_t",
       "metadata" : false,
       "pi_omit" : true
     },
     {
       "name" : "ipv4",
-      "id" : 7,
+      "id" : 3,
       "header_type" : "ipv4_t",
       "metadata" : false,
       "pi_omit" : true
@@ -110,12 +110,12 @@
   "parsers" : [
     {
       "name" : "parser",
-      "id" : 1,
+      "id" : 0,
       "init_state" : "start",
       "parse_states" : [
         {
           "name" : "start",
-          "id" : 2,
+          "id" : 0,
           "parser_ops" : [
             {
               "parameters" : [
@@ -150,7 +150,7 @@
         },
         {
           "name" : "parse_ipv4",
-          "id" : 3,
+          "id" : 1,
           "parser_ops" : [
             {
               "parameters" : [
@@ -285,7 +285,7 @@
   "deparsers" : [
     {
       "name" : "deparser",
-      "id" : 1,
+      "id" : 0,
       "source_info" : {
         "filename" : "test_simple.p4",
         "line" : 62,
@@ -304,7 +304,7 @@
   "actions" : [
     {
       "name" : "my_ingress.drop_action",
-      "id" : 2,
+      "id" : 0,
       "runtime_data" : [],
       "primitives" : [
         {
@@ -326,7 +326,7 @@
     },
     {
       "name" : "my_ingress.to_port_action",
-      "id" : 3,
+      "id" : 1,
       "runtime_data" : [
         {
           "name" : "port",
@@ -401,7 +401,7 @@
   "pipelines" : [
     {
       "name" : "ingress",
-      "id" : 2,
+      "id" : 0,
       "source_info" : {
         "filename" : "test_simple.p4",
         "line" : 83,
@@ -412,7 +412,7 @@
       "tables" : [
         {
           "name" : "my_ingress.ipv4_match",
-          "id" : 1,
+          "id" : 0,
           "source_info" : {
             "filename" : "test_simple.p4",
             "line" : 99,
@@ -433,7 +433,7 @@
           "with_counters" : false,
           "support_timeout" : false,
           "direct_meters" : null,
-          "action_ids" : [2, 3],
+          "action_ids" : [0, 1],
           "actions" : ["my_ingress.drop_action", "my_ingress.to_port_action"],
           "base_default_next" : null,
           "next_tables" : {
@@ -441,7 +441,7 @@
             "my_ingress.to_port_action" : null
           },
           "default_entry" : {
-            "action_id" : 2,
+            "action_id" : 0,
             "action_const" : false,
             "action_data" : [],
             "action_entry_const" : false
@@ -453,7 +453,7 @@
     },
     {
       "name" : "egress",
-      "id" : 3,
+      "id" : 1,
       "source_info" : {
         "filename" : "test_simple.p4",
         "line" : 117,
@@ -507,7 +507,7 @@
       ["standard_metadata", "priority"]
     ]
   ],
-  "program" : "test_simple.p4",
+  "program" : "./test_simple.p4i",
   "__meta__" : {
     "version" : [2, 23],
     "compiler" : "https://github.com/p4lang/p4c"
