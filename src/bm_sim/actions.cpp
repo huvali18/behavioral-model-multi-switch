@@ -25,6 +25,7 @@
 #include <bm/bm_sim/P4Objects.h>
 #include <bm/bm_sim/packet.h>
 #include <bm/bm_sim/logger.h>
+#include <unistd.h>
 
 #include <string>
 #include <vector>
@@ -401,6 +402,7 @@ ActionFnEntry::execute(Packet *pkt) const {
   size_t param_offset = 0;
   BMLOG_TRACE_SI_PKT(*pkt, action_fn->get_source_info(),
                      "Action {}", action_fn->get_name());
+
   for (size_t idx = 0; idx < primitives.size();) {
     const auto &primitive = primitives[idx];
     BMLOG_TRACE_SI_PKT(*pkt, primitive.get_source_info(),

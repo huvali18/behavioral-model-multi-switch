@@ -45,6 +45,6 @@ sudo ip link set veth5 mtu 9500
 sudo sysctl net.ipv6.conf.veth4.disable_ipv6=1
 sudo sysctl net.ipv6.conf.veth5.disable_ipv6=1
 
-cd ../../
-./multi_switch -i 0@veth1 -i 10@veth3 -i 30@veth5 --log-file switch_log.txt test/standard/pipe1.json test/standard/pipe2.json test/standard/pipe3.json test/standard/pipe4.json
-#set args -i 0@veth1 -i 10@veth3 -i 30@veth5 --log-file switch_log.txt test/standard/pipe1.json test/standard/pipe2.json test/standard/pipe3.json test/standard/pipe4.json
+cd ../../../simple_switch
+
+./simple_switch -i 0@veth1  --log-file switch_log.txt pipe1.json pipe1.json pipe1.json pipe1.json

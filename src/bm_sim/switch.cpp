@@ -343,7 +343,8 @@ SwitchWContexts::init_from_options_parser(
       status = init_objects_multi(parser.config_pipes, parser.device_id, transport);
     }
     else {
-      status = init_objects(parser.config_file_path, parser.device_id, transport);
+      std::cout << "simple\n";
+      status = init_objects(parser.config_pipes[0], parser.device_id, transport);
     }
     
   if (status != 0) return status;

@@ -36,6 +36,9 @@ public:
       auto pre = sw->get_cxt_component<McSimplePreLAG>(cxt_id);
       assert(pre != nullptr);
       pres.push_back(pre);
+      if(!sw->get_multi_switch()) {
+        break;
+      }
     }
   }
 

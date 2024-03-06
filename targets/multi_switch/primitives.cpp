@@ -30,7 +30,6 @@
 #include <random>
 #include <thread>
 
-#include "simple_switch.h"
 #include "multi_switch.h"
 #include "register_access.h"
 
@@ -48,7 +47,6 @@ using bm::HeaderStack;
 using bm::Logger;
 
 namespace {
-SimpleSwitch *simple_switch;
 MultiSwitch  *multi_switch;
 }  // namespace
 
@@ -166,7 +164,7 @@ REGISTER_PRIMITIVE(shift_right);
 class drop : public ActionPrimitive<> {
   void operator ()() {
     get_field("standard_metadata.egress_spec").set(
-        simple_switch->get_drop_port());
+        multi_switch->get_drop_port());
     if (get_phv().has_field("intrinsic_metadata.mcast_grp")) {
       get_field("intrinsic_metadata.mcast_grp").set(0);
     }
@@ -191,7 +189,7 @@ class mark_to_drop : public ActionPrimitive<Header &> {
       mcast_grp_offset = header_type.get_field_offset("mcast_grp");
     }
     std_hdr.get_field(egress_spec_offset).set(
-        simple_switch->get_drop_port());
+        multi_switch->get_drop_port());
 
     // This assumes that the P4 program is compiled with p4c and that the
     // "mcast_grp" field is defined in the same standard metadata header as
@@ -478,10 +476,6 @@ REGISTER_PRIMITIVE_W_NAME("truncate", truncate_);
 // In addition to setting the simple_switch global variable, this function also
 // ensures that this unit is not discarded by the linker. It is being called by
 // the constructor of SimpleSwitch.
-int import_primitives(SimpleSwitch *sswitch) {
-  simple_switch = sswitch;
-  return 0;
-}
 
 int import_primitives_multi(MultiSwitch *sswitch) {
   multi_switch = sswitch;

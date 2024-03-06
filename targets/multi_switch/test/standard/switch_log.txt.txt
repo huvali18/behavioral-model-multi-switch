@@ -1,0 +1,50 @@
+[20:32:49.040] [bmv2] [D] [thread 959] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[20:32:49.041] [bmv2] [D] [thread 959] Adding interface veth1 as port 0
+[20:32:49.042] [bmv2] [I] [thread 959] Starting Thrift server on port 9090
+[20:32:49.042] [bmv2] [I] [thread 959] Thrift server was started
+[20:32:56.780] [bmv2] [D] [thread 965] [0.0] [cxt 0] Processing packet received on port 0
+[20:32:56.780] [bmv2] [D] [thread 965] [0.0] [cxt 0] Parser 'parser': start
+[20:32:56.780] [bmv2] [D] [thread 965] [0.0] [cxt 0] Parser 'parser' entering state 'start'
+[20:32:56.781] [bmv2] [D] [thread 965] [0.0] [cxt 0] Extracting header 'ethernet'
+[20:32:56.781] [bmv2] [D] [thread 965] [0.0] [cxt 0] Parser state 'start': key is 0800
+[20:32:56.781] [bmv2] [T] [thread 965] [0.0] [cxt 0] Bytes parsed: 14
+[20:32:56.781] [bmv2] [D] [thread 965] [0.0] [cxt 0] Parser 'parser' entering state 'parse_ipv4'
+[20:32:56.781] [bmv2] [D] [thread 965] [0.0] [cxt 0] Extracting header 'ipv4'
+[20:32:56.781] [bmv2] [D] [thread 965] [0.0] [cxt 0] Parser set: setting field 'scalars.tmp' from expression, new value is 1
+[20:32:56.781] [bmv2] [D] [thread 965] [0.0] [cxt 0] Parser set: setting field 'scalars.tmp_0' from expression, new value is 1
+[20:32:56.781] [bmv2] [D] [thread 965] [0.0] [cxt 0] Parser state 'parse_ipv4' has no switch, going to default next state
+[20:32:56.781] [bmv2] [T] [thread 965] [0.0] [cxt 0] Bytes parsed: 34
+[20:32:56.781] [bmv2] [D] [thread 965] [0.0] [cxt 0] Parser 'parser': end
+[20:32:56.781] [bmv2] [D] [thread 965] [0.0] [cxt 0] Pipeline 'ingress': start
+[20:32:56.782] [bmv2] [T] [thread 965] [0.0] [cxt 0] Applying table 'my_ingress.ipv4_match'
+[20:32:56.782] [bmv2] [D] [thread 965] [0.0] [cxt 0] Looking up key:
+* hdr.ipv4.dst_addr   : c0120104
+
+[20:32:56.782] [bmv2] [D] [thread 965] [0.0] [cxt 0] Table 'my_ingress.ipv4_match': miss
+[20:32:56.782] [bmv2] [D] [thread 965] [0.0] [cxt 0] Action entry is my_ingress.drop_action - 
+[20:32:56.782] [bmv2] [T] [thread 965] [0.0] [cxt 0] Action my_ingress.drop_action
+[20:32:56.783] [bmv2] [T] [thread 965] [0.0] [cxt 0] test_simple.p4(90) Primitive mark_to_drop(standard_metadata)
+[20:32:56.783] [bmv2] [D] [thread 965] [0.0] [cxt 0] Pipeline 'ingress': end
+[20:32:56.783] [bmv2] [D] [thread 965] [0.0] [cxt 0] Egress port is 511
+[20:32:56.783] [bmv2] [D] [thread 965] [0.0] [cxt 0] Dropping packet at the end of ingress
+[20:33:13.328] [bmv2] [D] [thread 965] [1.0] [cxt 0] Processing packet received on port 0
+[20:33:13.328] [bmv2] [D] [thread 965] [1.0] [cxt 0] Parser 'parser': start
+[20:33:13.329] [bmv2] [D] [thread 965] [1.0] [cxt 0] Parser 'parser' entering state 'start'
+[20:33:13.329] [bmv2] [D] [thread 965] [1.0] [cxt 0] Extracting header 'ethernet'
+[20:33:13.329] [bmv2] [D] [thread 965] [1.0] [cxt 0] Parser state 'start': key is 0800
+[20:33:13.329] [bmv2] [T] [thread 965] [1.0] [cxt 0] Bytes parsed: 14
+[20:33:13.329] [bmv2] [D] [thread 965] [1.0] [cxt 0] Parser 'parser' entering state 'parse_ipv4'
+[20:33:13.329] [bmv2] [D] [thread 965] [1.0] [cxt 0] Extracting header 'ipv4'
+[20:33:13.329] [bmv2] [D] [thread 965] [1.0] [cxt 0] Parser set: setting field 'scalars.tmp' from expression, new value is 1
+[20:33:13.329] [bmv2] [D] [thread 965] [1.0] [cxt 0] Parser set: setting field 'scalars.tmp_0' from expression, new value is 1
+[20:33:13.329] [bmv2] [D] [thread 965] [1.0] [cxt 0] Parser state 'parse_ipv4' has no switch, going to default next state
+[20:33:13.329] [bmv2] [T] [thread 965] [1.0] [cxt 0] Bytes parsed: 34
+[20:33:13.329] [bmv2] [D] [thread 965] [1.0] [cxt 0] Parser 'parser': end
+[20:33:13.329] [bmv2] [D] [thread 965] [1.0] [cxt 0] Pipeline 'ingress': start
+[20:33:13.329] [bmv2] [T] [thread 965] [1.0] [cxt 0] Applying table 'my_ingress.ipv4_match'
+[20:33:13.329] [bmv2] [D] [thread 965] [1.0] [cxt 0] Looking up key:
+* hdr.ipv4.dst_addr   : c0120104
+
+[20:33:13.329] [bmv2] [D] [thread 965] [1.0] [cxt 0] Table 'my_ingress.ipv4_match': miss
+[20:33:13.329] [bmv2] [D] [thread 965] [1.0] [cxt 0] Action entry is my_ingress.drop_action - 
+[20:33:13.329] [bmv2] [T]

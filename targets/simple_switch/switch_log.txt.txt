@@ -1,0 +1,230 @@
+[21:39:55.212] [bmv2] [D] [thread 2542] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[21:39:55.213] [bmv2] [D] [thread 2542] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[21:39:55.214] [bmv2] [D] [thread 2542] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[21:39:55.215] [bmv2] [D] [thread 2542] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[21:[21:49:23.694] [bmv2] [D] [thread 3965] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[21:49:23.695] [bmv2] [D] [thread 3965] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[21:49:23.696] [bmv2] [D] [thread 3965] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[21:49:23.696] [bmv2] [D] [thread 3965] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[21:[21:50:30.485] [bmv2] [D] [thread 4053] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[21:50:30.486] [bmv2] [D] [thread 4053] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[21:50:30.486] [bmv2] [D] [thread 4053] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[21:50:30.487] [bmv2] [D] [thread 4053] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[21:[21:54:12.107] [bmv2] [D] [thread 5449] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[21:54:12.108] [bmv2] [D] [thread 5449] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[21:54:12.109] [bmv2] [D] [thread 5449] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[21:54:12.110] [bmv2] [D] [thread 5449] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[21:54:12.110] [bmv2] [D] [thread 5449] Adding interface veth1 as port 0
+[21:54:12.111] [bmv2] [I] [thread 5449] Starting Thrift server on port 9090
+[21:54:12.112] [bmv2] [I] [thread 5449] Thrift server was started
+[21:57:51.859] [bmv2] [D] [thread 5471] [0.0] [cxt 0] Processing packet received on port 0
+[21:57:51.859] [bmv2] [D] [thread 5471] [0.0] [cxt 0] Parser 'parser': start
+[21:57:51.859] [bmv2] [D] [thread 5471] [0.0] [cxt 0] Parser 'parser' entering state 'start'
+[21:57:51.859] [bmv2] [D] [thread 5471] [0.0] [cxt 0] Extracting header 'ethernet'
+[21:57:51.860] [bmv2] [D] [thread 5471] [0.0] [cxt 0] Parser state 'start': key is 0800
+[21:57:51.860] [bmv2] [T] [thread 5471] [0.0] [cxt 0] Bytes parsed: 14
+[21:57:51.860] [bmv2] [D] [thread 5471] [0.0] [cxt 0] Parser 'parser' entering state 'parse_ipv4'
+[21:57:51.860] [bmv2] [D] [thread 5471] [0.0] [cxt 0] Extracting header 'ipv4'
+[21:57:51.860] [bmv2] [D] [thread 5471] [0.0] [cxt 0] Parser set: setting field 'scalars.tmp' from expression, new value is 1
+[21:57:51.860] [bmv2] [D] [thread 5471] [0.0] [cxt 0] Parser set: setting field 'scalars.tmp_0' from expression, new value is 1
+[21:57:51.861] [bmv2] [D] [thread 5471] [0.0] [cxt 0] Parser state 'parse_ipv4' has no switch, going to default next state
+[21:57:51.861] [bmv2] [T] [thread 5471] [0.0] [cxt 0] Bytes parsed: 34
+[21:57:51.861] [bmv2] [D] [thread 5471] [0.0] [cxt 0] Parser 'parser': end
+[21:57:51.861] [bmv2] [D] [thread 5471] [0.0] [cxt 0] Pipeline 'ingress': start
+[21:57:51.861] [bmv2] [T] [thread 5471] [0.0] [cxt 0] Applying table 'my_ingress.ipv4_match'
+[21:57:51.862] [bmv2] [D] [thread 5471] [0.0] [cxt 0] Looking up key:
+* hdr.ipv4.dst_addr   : c0a80106
+
+[21:57:51.862] [bmv2] [D] [thread 5471] [0.0] [cxt 0] Table 'my_ingress.ipv4_match': miss
+[21:57:51.862] [bmv2] [D] [thread 5471] [0.0] [cxt 0] Action entry is my_ingress.drop_action - 
+[21:57:51.862] [bmv2] [T] [thread 5471] [0.0] [cxt 0] Action my_ingress.drop_action
+[21:57:51.862] [bmv2] [T] [thread 5471] [0.0] [cxt 0] test_simple.p4(90) Primitive mark_to_drop(standard_metadata)
+[21:57:51.863] [bmv2] [D] [thread 5471] [0.0] [cxt 0] Pipeline 'ingress': end
+[21:57:51.863] [bmv2] [D] [thread 5471] [0.0] [cxt 0] Egress port is 511
+[21:57:51.863] [bmv2] [D] [thread 5471] [0.0] [cxt 0] Dropping packet at the end of ingress
+[21:58:11.914] [bmv2] [D] [thread 5471] [1.0] [cxt 0] Processing packet received on port 0
+[21:58:11.914] [bmv2] [D] [thread 5471] [1.0] [cxt 0] Parser 'parser': start
+[21:58:11.914] [bmv2] [D] [thread 5471] [1.0] [cxt 0] Parser 'parser' entering state 'start'
+[21:58:11.915] [bmv2] [D] [thread 5471] [1.0] [cxt 0] Extracting header 'ethernet'
+[21:58:11.915] [bmv2] [D] [thread 5471] [1.0] [cxt 0] Parser state 'start': key is 0800
+[21:58:11.915] [bmv2] [T] [thread 5471] [1.0] [cxt 0] Bytes parsed: 14
+[21:58:11.915] [bmv2] [D] [thread 5471] [1.0] [cxt 0] Parser 'parser' entering state 'parse_ipv4'
+[21:58:11.915] [bmv2] [D] [thread 5471] [1.0] [cxt 0] Extracting header 'ipv4'
+[21:58:11.915] [bmv2] [D] [thread 5471] [1.0] [cxt 0] Parser set: setting field 'scalars.tmp' from expression, new value is 1
+[21:58:11.915] [bmv2] [D] [thread 5471] [1.0] [cxt 0] Parser set: setting field 'scalars.tmp_0' from expression, new value is 1
+[21:58:11.915] [bmv2] [D] [thread 5471] [1.0] [cxt 0] Parser state 'parse_ipv4' has no switch, going to default next state
+[21:58:11.915] [bmv2] [T] [thread 5471] [1.0] [cxt 0] Bytes parsed: 34
+[21:58:11.915] [bmv2] [D] [thread 5471] [1.0] [cxt 0] Parser 'parser': end
+[21:58:11.915] [bmv2] [D] [thread 5471] [1.0] [cxt 0] Pipeline 'ingress': start
+[21:58:11.916] [bmv2] [T] [thread 5471] [1.0] [cxt 0] Applying table 'my_ingress.ipv4_match'
+[21:58:11.916] [bmv2] [D] [thread 5471] [1.0] [cxt 0] Looking up key:
+* hdr.ipv4.dst_addr   : c0a80106
+
+[21:58:11.916] [bmv2] [D] [thread 5471] [1.0] [cxt 0] Table 'my_ingress.ipv4_match': miss
+[21:58:11.916] [bmv2] [D] [thread 5471] [1.0] [cxt 0] Action entry is my_ingress.drop_action - 
+[21:58:11.916] [bmv2] [T] [thread 5471] [1.0] [cxt 0] Action my_ingress.drop_action
+[21:58:11.916] [bmv2] [T] [[22:16:36.747] [bmv2] [D] [thread 8015] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[22:16:36.749] [bmv2] [D] [thread 8015] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[22:16:36.749] [bmv2] [D] [thread 8015] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[22:16:36.750] [bmv2] [D] [thread 8015] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[22:16:36.751] [bmv2] [D] [thread 8015] Adding interface veth1 as port 0
+[22:16:36.753] [bmv2] [I] [thread 8015] Starting Thrift server on port 9090
+[22:16:36.753] [bmv2] [I] [thread 8015] Thrift server was started
+[22:16:38.846] [bmv2] [D] [thread 8037] [0.0] [cxt 0] Processing packet received on port 0
+[22:16:38.846] [bmv2] [D] [thread 8037] [0.0] [cxt 0] Parser 'parser': start
+[22:16:38.846] [bmv2] [D] [thread 8037] [0.0] [cxt 0] Parser 'parser' entering state 'start'
+[22:16:38.846] [bmv2] [D] [thread 8037] [0.0] [cxt 0] Extracting header 'ethernet'
+[22:16:38.847] [bmv2] [D] [thread 8037] [0.0] [cxt 0] Parser state 'start': key is 0800
+[22:16:38.847] [bmv2] [T] [thread 8037] [0.0] [cxt 0] Bytes parsed: 14
+[22:16:38.847] [bmv2] [D] [thread 8037] [0.0] [cxt 0] Parser 'parser' entering state 'parse_ipv4'
+[22:16:38.847] [bmv2] [D] [thread 8037] [0.0] [cxt 0] Extracting header 'ipv4'
+[22:16:38.847] [bmv2] [D] [thread 8037] [0.0] [cxt 0] Parser set: setting field 'scalars.tmp' from expression, new value is 1
+[22:16:38.847] [bmv2] [D] [thread 8037] [0.0] [cxt 0] Parser set: setting field 'scalars.tmp_0' from expression, new value is 1
+[22:16:38.848] [bmv2] [D] [thread 8037] [0.0] [cxt 0] Parser state 'parse_ipv4' has no switch, going to default next state
+[22:16:38.848] [bmv2] [T] [thread 8037] [0.0] [cxt 0] Bytes parsed: 34
+[22:16:38.848] [bmv2] [D] [thread 8037] [0.0] [cxt 0] Parser 'parser': end
+[22:16:38.848] [bmv2] [D] [thread 8037] [0.0] [cxt 0] Pipeline 'ingress': start
+[22:16:38.848] [bmv2] [T] [thread 8037] [0.0] [cxt 0] Applying table 'my_ingress.ipv4_match'
+[22:16:38.849] [bmv2] [D] [thread 8037] [0.0] [cxt 0] Looking up key:
+* hdr.ipv4.dst_addr   : c0a80106
+
+[22:16:38.849] [bmv2] [D] [thread 8037] [0.0] [cxt 0] Table 'my_ingress.ipv4_match': miss
+[22:16:38.849] [bmv2] [D] [thread 8037] [0.0] [cxt 0] Action entry is my_ingress.drop_action - 
+[22:16:38.849] [bmv2] [T] [thread 8037] [0.0] [cxt 0] Action my_ingress.drop_action
+[22:16:38.849] [bmv2] [T] [thread 8037] [0.0] [cxt 0] test_simple.p4(90) Primitive mark[22:37:08.414] [bmv2] [D] [thread 10743] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[22:37:08.416] [bmv2] [D] [thread 10743] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[22:37:08.417] [bmv2] [D] [thread 10743] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[22:37:08.419] [bmv2] [D] [thread 10743] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[22:37:08.420] [bmv2] [D] [thread 10743] Adding interface veth1 as port 0
+[22:37:08.430] [bmv2] [I] [thread 10743] Starting Thrift server on port 9090
+[22:37:08.430] [bmv2] [I] [thread 10743] Thrift server was started
+[22:37:10.664] [bmv2] [D] [thread 10765] [0.0] [cxt 0] Processing packet received on port 0
+[22:37:10.664] [bmv2] [D] [thread 10765] [0.0] [cxt 0] Parser 'parser': start
+[22:37:10.664] [bmv2] [D] [thread 10765] [0.0] [cxt 0] Parser 'parser' entering state 'start'
+[22:37:10.664] [bmv2] [D] [thread 10765] [0.0] [cxt 0] Extracting header 'ethernet'
+[22:37:10.664] [bmv2] [D] [thread 10765] [0.0] [cxt 0] Parser state 'start': key is 0800
+[22:37:10.664] [bmv2] [T] [thread 10765] [0.0] [cxt 0] Bytes parsed: 14
+[22:37:10.664] [bmv2] [D] [thread 10765] [0.0] [cxt 0] Parser 'parser' entering state 'parse_ipv4'
+[22:37:10.664] [bmv2] [D] [thread 10765] [0.0] [cxt 0] Extracting header 'ipv4'
+[22:37:10.664] [bmv2] [D] [thread 10765] [0.0] [cxt 0] Parser set: setting field 'scalars.tmp' from expression, new value is 1
+[22:37:10.665] [bmv2] [D] [thread 10765] [0.0] [cxt 0] Parser set: setting field 'scalars.tmp_0' from expression, new value is 1
+[22:37:10.665] [bmv2] [D] [thread 10765] [0.0] [cxt 0] Parser state 'parse_ipv4' has no switch, going to default next state
+[22:37:10.665] [bmv2] [T] [thread 10765] [0.0] [cxt 0] Bytes parsed: 34
+[22:37:10.665] [bmv2] [D] [thread 10765] [0.0] [cxt 0] Parser 'parser': end
+[22:37:10.665] [bmv2] [D] [thread 10765] [0.0] [cxt 0] Pipeline 'ingress': start
+[22:37:10.665] [bmv2] [T] [thread 10765] [0.0] [cxt 0] Applying table 'my_ingress.ipv4_match'
+[22:37:10.665] [bmv2] [D] [thread 10765] [0.0] [cxt 0] Looking up key:
+* hdr.ipv4.dst_addr   : c0a80106
+
+[22:37:10.665] [bmv2] [D] [thread 10765] [0.0] [cxt 0] Table 'my_ingress.ipv4_match': miss
+[22:37:10.665] [bmv2] [D] [thread 10765] [0.0] [cxt 0] Action entry is my_ingress.drop_action - 
+[22:37:10.665] [bmv2] [T] [thread 10765] [0.0] [cxt 0] Action my_ingress.drop_action
+[22:37:10.665] [bmv2] [T] [thread 10765] [0.0] [cxt 0] test_s[23:08:13.635] [bmv2] [D] [thread 15793] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[23:08:13.636] [bmv2] [D] [thread 15793] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[23:08:13.637] [bmv2] [D] [thread 15793] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[23:08:13.638] [bmv2] [D] [thread 15793] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[23:08:13.639] [bmv2] [D] [thread 15793] Adding interface veth1 as port 0
+[23:08:13.640] [bmv2] [I] [thread 15793] Starting Thrift server on port 9090
+[23:08:13.640] [bmv2] [I] [thread 15793] Thrift server was started
+[23:08:16.021] [bmv2] [D] [thread 15815] [0.0] [cxt 0] Processing packet received on port 0
+[23:08:16.021] [bmv2] [D] [thread 15815] [0.0] [cxt 0] Parser 'parser': start
+[23:08:16.021] [bmv2] [D] [thread 15815] [0.0] [cxt 0] Parser 'parser' entering state 'start'
+[23:08:16.021] [bmv2] [D] [thread 15815] [0.0] [cxt 0] Extracting header 'ethernet'
+[23:08:16.021] [bmv2] [D] [thread 15815] [0.0] [cxt 0] Parser state 'start': key is 0800
+[23:08:16.021] [bmv2] [T] [thread 15815] [0.0] [cxt 0] Bytes parsed: 14
+[23:08:16.021] [bmv2] [D] [thread 15815] [0.0] [cxt 0] Parser 'parser' entering state 'parse_ipv4'
+[23:08:16.021] [bmv2] [D] [thread 15815] [0.0] [cxt 0] Extracting header 'ipv4'
+[23:08:16.022] [bmv2] [D] [thread 15815] [0.0] [cxt 0] Parser set: setting field 'scalars.tmp' from expression, new value is 1
+[23:08:16.022] [bmv2] [D] [thread 15815] [0.0] [cxt 0] Parser set: setting field 'scalars.tmp_0' from expression, new value is 1
+[23:08:16.022] [bmv2] [D] [thread 15815] [0.0] [cxt 0] Parser state 'parse_ipv4' has no switch, going to default next state
+[23:08:16.022] [bmv2] [T] [thread 15815] [0.0] [cxt 0] Bytes parsed: 34
+[23:08:16.022] [bmv2] [D] [thread 15815] [0.0] [cxt 0] Parser 'parser': end
+[23:08:16.022] [bmv2] [D] [thread 15815] [0.0] [cxt 0] Pipeline 'ingress': start
+[23:08:16.023] [bmv2] [T] [thread 15815] [0.0] [cxt 0] Applying table 'my_ingress.ipv4_match'
+[23:08:16.023] [bmv2] [D] [thread 15815] [0.0] [cxt 0] Looking up key:
+* hdr.ipv4.dst_addr   : c0a80106
+
+[23:08:16.023] [bmv2] [D] [thread 15815] [0.0] [cxt 0] Table 'my_ingress.ipv4_match': miss
+[23:08:16.023] [bmv2] [D] [thread 15815] [0.0] [cxt 0] Action entry is my_ingress.drop_action - 
+[23:08:16.023] [bmv2] [T] [thread 15815] [0.0] [cxt 0] Action my_ingress.drop_action
+[23:08:21.024] [bmv2] [T] [thread 15815] [0.0] [cxt 0] test_simple.p4(90) Primitive mark_to_drop(standard_metadata)
+[23:08:21.025] [bmv2] [D] [thread 15815] [0.0] [cxt 0] Pipeline 'ingress': end
+[23:08:21.025] [bmv2] [D] [thread 15815] [0.0] [cxt 0] Egress port is 511
+[23:08:21.025] [bmv2] [D] [thread 15815] [0.0] [cxt 0] Dropping packet at the end of ingress
+[23:08:56.943] [bmv2] [D] [thread 15815] [1.0] [cxt 0] Processing packet received on port 0
+[23:08:56.943] [bmv2] [D] [thread 15815] [1.0] [cxt 0] Parser 'parser': start
+[23:08:56.943] [bmv2] [D] [thread 15815] [1.0] [cxt 0] Parser 'parser' entering state 'start'
+[23:08:56.944] [bmv2] [D] [thread 15815] [1.0] [cxt 0] Extracting header 'ethernet'
+[23:08:56.944] [bmv2] [D] [thread 15815] [1.0] [cxt 0] Parser state 'start': key is 0800
+[23:08:56.944] [bmv2] [T] [thread 15815] [1.0] [cxt 0] Bytes parsed: 14
+[23:08:56.944] [bmv2] [D] [thread 15815] [1.0] [cxt 0] Parser 'parser' entering state 'parse_ipv4'
+[23:08:56.944] [bmv2] [D] [thread 15815] [1.0] [cxt 0] Extracting header 'ipv4'
+[23:08:56.944] [bmv2] [D] [thread 15815] [1.0] [cxt 0] Parser set: setting field 'scalars.tmp' from expression, new value is 1
+[23:08:56.944] [bmv2] [D] [thread 15815] [1.0] [cxt 0] Parser set: setting field 'scalars.tmp_0' from expression, new value is 1
+[23:08:56.944] [bmv2] [D] [thread 15815] [1.0] [cxt 0] Parser state 'parse_ipv4' has no switch, going to default next state
+[23:08:56.944] [bmv2] [T] [thread 15815] [1.0] [cxt 0] Bytes parsed: 34
+[23:08:56.944] [bmv2] [D] [thread 15815] [1.0] [cxt 0] Parser 'parser': end
+[23:08:56.944] [bmv2] [D] [thread 15815] [1.0] [cxt 0] Pipeline 'ingress': start
+[23:08:56.944] [bmv2] [T] [thread 15815] [1.0] [cxt 0] Applying table 'my_ingress.ipv4_match'
+[23:08:56.944] [bmv2] [D] [thread 15815] [1.0] [cxt 0] Looking up key:
+* hdr.ipv4.dst_addr   : c0a80106
+
+[23:08:56.944] [bmv2] [D] [thread 15815] [1.0] [cxt 0] Table 'my_ingress.ipv4_match': miss
+[23:08:56.944] [bmv2] [D] [thread 15815] [1.0] [cxt 0] Action entry is my_ingress.drop_action - 
+[23:08:56.944] [bmv2] [T] [thread 15815] [1.0] [cxt 0] Action m[09:21:23.771] [bmv2] [D] [thread 23605] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[09:21:23.774] [bmv2] [D] [thread 23605] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[09:21:23.777] [bmv2] [D] [thread 23605] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[09:21:23.780] [bmv2] [D] [thread 23605] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[09:21:23.783] [bmv2] [D] [thread 23605] Adding interface veth1 as port 0
+[09:21:23.786] [bmv2] [I] [thread 23605] Starting Thrift server on port 9090
+[09:21:23.787] [bmv2] [I] [thread 23605] Thrift server was started
+[09:21:26.382] [bmv2] [D] [thread 23627] [0.0] [cxt 0] Processing packet received on port 0
+[09:21:26.382] [bmv2] [D] [thread 23627] [0.0] [cxt 0] Parser 'parser': start
+[09:21:26.382] [bmv2] [D] [thread 23627] [0.0] [cxt 0] Parser 'parser' entering state 'start'
+[09:21:26.382] [bmv2] [D] [thread 23627] [0.0] [cxt 0] Extracting header 'ethernet'
+[09:21:26.384] [bmv2] [D] [thread 23627] [0.0] [cxt 0] Parser state 'start': key is 0800
+[09:21:26.384] [bmv2] [T] [thread 23627] [0.0] [cxt 0] Bytes parsed: 14
+[09:21:26.384] [bmv2] [D] [thread 23627] [0.0] [cxt 0] Parser 'parser' entering state 'parse_ipv4'
+[09:21:26.384] [bmv2] [D] [thread 23627] [0.0] [cxt 0] Extracting header 'ipv4'
+[09:21:26.384] [bmv2] [D] [thread 23627] [0.0] [cxt 0] Parser set: setting field 'scalars.tmp' from expression, new value is 1
+[09:21:26.385] [bmv2] [D] [thread 23627] [0.0] [cxt 0] Parser set: setting field 'scalars.tmp_0' from expression, new value is 1
+[09:21:26.385] [bmv2] [D] [thread 23627] [0.0] [cxt 0] Parser state 'parse_ipv4' has no switch, going to default next state
+[09:21:26.385] [bmv2] [T] [thread 23627] [0.0] [cxt 0] Bytes parsed: 34
+[09:21:26.385] [bmv2] [D] [thread 23627] [0.0] [cxt 0] Parser 'parser': end
+[09:21:26.385] [bmv2] [D] [thread 23627] [0.0] [cxt 0] Pipeline 'ingress': start
+[09:21:26.385] [bmv2] [T] [thread 23627] [0.0] [cxt 0] Applying table 'my_ingress.ipv4_match'
+[09:21:26.386] [bmv2] [D] [thread 23627] [0.0] [cxt 0] Looking up key:
+* hdr.ipv4.dst_addr   : c0a80106
+
+[09:21:26.386] [bmv2] [D] [thread 23627] [0.0] [cxt 0] Table 'my_ingress.ipv4_match': miss
+[09:21:26.386] [bmv2] [D] [thread 23627] [0.0] [cxt 0] Action entry is my_ingress.drop_action - 
+[09:21:26.386] [bmv2] [T] [thread 23627] [0.0] [cxt 0] Action my_ingress.drop_action
+[09:21:26.386] [bmv2] [T] [thread 23627] [0.0] [cxt 0] test_s[15:59:44.751] [bmv2] [D] [thread 3904] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[15:59:44.751] [bmv2] [D] [thread 3904] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[15:59:44.752] [bmv2] [D] [thread 3904] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[15:59:44.753] [bmv2] [D] [thread 3904] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[15:59:44.754] [bmv2] [D] [thread 3904] Adding interface veth1 as port 0
+[15:59:44.755] [bmv2] [I] [thread 3904] Starting Thrift server on port 9090
+[15:59:44.755] [bmv2] [I] [thread 3904] Thrift server was started
+[15:59:47.397] [bmv2] [D] [thread 3926] [0.0] [cxt 0] Processing packet received on port 0
+[15:59:47.397] [bmv2] [D] [thread 3926] [0.0] [cxt 0] Parser 'parser': start
+[15:59:47.397] [bmv2] [D] [thread 3926] [0.0] [cxt 0] Parser 'parser' entering state 'start'
+[15:59:47.398] [bmv2] [D] [thread 3926] [0.0] [cxt 0] Extracting header 'ethernet'
+[15:59:47.398] [bmv2] [D] [thread 3926] [0.0] [cxt 0] Parser state 'start': key is 0800
+[15:59:47.398] [bmv2] [T] [thread 3926] [0.0] [cxt 0] Bytes parsed: 14
+[15:59:47.398] [bmv2] [D] [thread 3926] [0.0] [cxt 0] Parser 'parser' entering state 'parse_ipv4'
+[15:59:47.398] [bmv2] [D] [thread 3926] [0.0] [cxt 0] Extracting header 'ipv4'
+[15:59:47.398] [bmv2] [D] [thread 3926] [0.0] [cxt 0] Parser set: setting field 'scalars.tmp' from expression, new value is 1
+[15:59:47.398] [bmv2] [D] [thread 3926] [0.0] [cxt 0] Parser set: setting field 'scalars.tmp_0' from expression, new value is 1
+[15:59:47.399] [bmv2] [D] [thread 3926] [0.0] [cxt 0] Parser state 'parse_ipv4' has no switch, going to default next state
+[15:59:47.399] [bmv2] [T] [thread 3926] [0.0] [cxt 0] Bytes parsed: 34
+[15:59:47.399] [bmv2] [D] [thread 3926] [0.0] [cxt 0] Parser 'parser': end
+[15:59:47.399] [bmv2] [D] [thread 3926] [0.0] [cxt 0] Pipeline 'ingress': start
+[15:59:47.399] [bmv2] [T] [thread 3926] [0.0] [cxt 0] Applying table 'my_ingress.ipv4_match'
+[15:59:47.400] [bmv2] [D] [thread 3926] [0.0] [cxt 0] Looking up key:
+* hdr.ipv4.dst_addr   : c0a80106
+
+[15:59:47.400] [bmv2] [D] [thread 3926] [0.0] [cxt 0] Table 'my_ingress.ipv4_match': miss
+[15:59:47.400] [bmv2] [D] [thread 3926] [0.0] [cxt 0] Action entry is my_ingress.drop_action - 
+[15:59:47.401] [bmv2] [T] [thread 3926] [0.0] [cxt 0] Action my_ingress.drop_action
+[15:59:47.401] [bmv2] [T] [thread 3926] [0.0] [cxt 0] test_simple.p4(90) Primitive mark
