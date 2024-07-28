@@ -582,7 +582,7 @@ MultiSwitch::ingress_thread(size_t worker_id) {
 
     // TODO(antonin): only update these if swapping actually happened?
     Parser *parser = this->get_parser(worker_id, "parser");
-    Pipeline *ingress_mau = this->get_pipeline(worker_id, "ingress")
+    Pipeline *ingress_mau = this->get_pipeline(worker_id, "ingress");
 
     phv = packet->get_phv();
 
