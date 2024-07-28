@@ -19,13 +19,39 @@
 #  Antonin Bas (antonin@barefootnetworks.com)
 #
 #
+
+#from runtime_CLI import *
+'''import runtime_CLI 
+from runtime_CLI import *
+
 from functools import wraps
 import os
 import sys
 
+from sswitch_runtime import SimpleSwitch
+from sswitch_runtime.ttypes import *
+
+import bmpy_utils as utils
+
+from bm_runtime.standard import Standard
+from bm_runtime.standard.ttypes import *
+try:
+    from bm_runtime.simple_pre import SimplePre
+except:
+    pass
+try:
+    from bm_runtime.simple_pre_lag import SimplePreLAG
+except:
+    pass
+'''
+import os
+import sys
+
 current_dir = os.path.dirname(os.path.abspath(__file__))
-target_dir = os.path.abspath("../..")
-sys.path.append(target_dir)
+current_dir = os.path.dirname(current_dir)
+current_dir = os.path.dirname(current_dir)
+sys.path.append(current_dir)
+
 
 from tools import runtime_CLI
 from runtime_CLI import *
@@ -45,6 +71,8 @@ try:
     from tools.bm_runtime.simple_pre_lag import SimplePreLAG
 except:
     pass
+    
+
 
 
 

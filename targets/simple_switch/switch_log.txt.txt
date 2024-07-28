@@ -227,4 +227,41 @@
 [15:59:47.400] [bmv2] [D] [thread 3926] [0.0] [cxt 0] Table 'my_ingress.ipv4_match': miss
 [15:59:47.400] [bmv2] [D] [thread 3926] [0.0] [cxt 0] Action entry is my_ingress.drop_action - 
 [15:59:47.401] [bmv2] [T] [thread 3926] [0.0] [cxt 0] Action my_ingress.drop_action
-[15:59:47.401] [bmv2] [T] [thread 3926] [0.0] [cxt 0] test_simple.p4(90) Primitive mark
+[15:59:47.401] [bmv2] [T] [thread 3926] [0.0] [cxt 0] test_simple.p4(90) Primitive mark[12:52:04.525] [bmv2] [D] [thread 7618] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[12:52:04.526] [bmv2] [D] [thread 7618] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[12:52:04.527] [bmv2] [D] [thread 7618] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[12:52:04.528] [bmv2] [D] [thread 7618] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[12:[10:35:11.963] [bmv2] [D] [thread 3169] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[10:35:11.965] [bmv2] [D] [thread 3169] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[10:35:11.966] [bmv2] [D] [thread 3169] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[10:35:11.967] [bmv2] [D] [thread 3169] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[10:35:11.969] [bmv2] [D] [thread 3169] Adding interface veth1 as port 0
+[10:35:11.970] [bmv2] [E] [thread 3169] Add port operation failed
+[10:35:11.970] [bmv2] [D] [thread 3169] Adding interface veth3 as port 1
+[10:35:11.971] [bmv2] [E] [thread 3169] Add port operation failed
+[10:35:11.971] [bmv2] [D] [thread 3169] Adding interface veth5 as port 2
+[10:35:11.972] [bmv2] [E] [thread 3169] Add port operation failed
+[10:35:11.972] [bmv2] [I] [thread 3169] Starting Thrift server on port 9090
+[10:35:11.972] [bmv2] [[10:43:06.664] [bmv2] [D] [thread 3743] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[10:43:06.665] [bmv2] [D] [thread 3743] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[10:43:06.667] [bmv2] [D] [thread 3743] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[10:43:06.669] [bmv2] [D] [thread 3743] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[10:43:06.670] [bmv2] [D] [thread 3743] Adding interface veth1 as port 0
+[10:43:06.672] [bmv2] [E] [thread 3743] Add port operation failed
+[10:43:06.672] [bmv2] [D] [thread 3743] Adding interface veth3 as port 1
+[10:43:06.672] [bmv2] [E] [thread 3743] Add port operation failed
+[10:43:06.672] [bmv2] [D] [thread 3743] Adding interface veth5 as port 2
+[10:43:06.673] [bmv2] [E] [thread 3743] Add port operation failed
+[10:43:06.673] [bmv2] [I] [thread 3743] Starting Thrift server on port 9090
+[10:43:06.673] [bmv2] [[10:43:26.654] [bmv2] [D] [thread 3773] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[10:43:26.655] [bmv2] [D] [thread 3773] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[10:43:26.656] [bmv2] [D] [thread 3773] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[10:43:26.658] [bmv2] [D] [thread 3773] Set default default entry for table 'my_ingress.ipv4_match': my_ingress.drop_action - 
+[10:43:26.659] [bmv2] [D] [thread 3773] Adding interface veth1 as port 0
+[10:43:26.661] [bmv2] [E] [thread 3773] Add port operation failed
+[10:43:26.661] [bmv2] [D] [thread 3773] Adding interface veth3 as port 1
+[10:43:26.661] [bmv2] [E] [thread 3773] Add port operation failed
+[10:43:26.661] [bmv2] [D] [thread 3773] Adding interface veth5 as port 2
+[10:43:26.662] [bmv2] [E] [thread 3773] Add port operation failed
+[10:43:26.662] [bmv2] [I] [thread 3773] Starting Thrift server on port 9090
+[10:43:26.662] [bmv2] [

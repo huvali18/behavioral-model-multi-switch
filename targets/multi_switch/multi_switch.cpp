@@ -17,6 +17,12 @@
 #include "multi_switch.h"
 #include "register_access.h"
 
+spdlog::logger *transmit_logger;
+spdlog::logger *recieve_logger;
+spdlog::logger *ingress_logger;
+spdlog::logger *egress_logger;
+spdlog::logger *ing_buf_logger;
+spdlog::logger *egg_buf_logger;
 
 namespace {
 
@@ -104,6 +110,9 @@ class MultiSwitch::MirroringSessions {
 // is blocking (back pressure is applied to the interface).
 class MultiSwitch::InputBuffer {
  public:
+
+  using QueueImpl = std::deque<std::unique_ptr<Packet> >;
+
   enum class PacketType {
     NORMAL,
     RESUBMIT,
@@ -149,10 +158,13 @@ class MultiSwitch::InputBuffer {
     }
   }
 
+  QueueImpl queue_hi;
+  QueueImpl queue_lo;
+
  private:
   using Mutex = std::mutex;
   using Lock = std::unique_lock<Mutex>;
-  using QueueImpl = std::deque<std::unique_ptr<Packet> >;
+  //using QueueImpl = std::deque<std::unique_ptr<Packet> >;
 
   int push_front(QueueImpl *queue, size_t capacity,
                  std::condition_variable *cvar,
@@ -174,8 +186,6 @@ class MultiSwitch::InputBuffer {
   mutable std::condition_variable cvar_can_pop;
   size_t capacity_hi;
   size_t capacity_lo;
-  QueueImpl queue_hi;
-  QueueImpl queue_lo;
 };
 
 MultiSwitch::MultiSwitch(bool enable_swap, port_t drop_port,
@@ -183,9 +193,6 @@ MultiSwitch::MultiSwitch(bool enable_swap, port_t drop_port,
   : MultiContexts(enable_swap),
     drop_port(drop_port),
     nb_queues_per_port(nb_queues_per_port),
-    egress_buffers_t1(nb_egress_threads,
-                   64, EgressThreadMapper(nb_egress_threads),
-                   nb_queues_per_port),
     output_buffer(128),
     // cannot use std::bind because of a clang bug
     // https://stackoverflow.com/questions/32030141/is-this-incorrect-use-of-stdbind-or-a-compiler-bug
@@ -198,14 +205,78 @@ MultiSwitch::MultiSwitch(bool enable_swap, port_t drop_port,
     mirroring_sessions(new MirroringSessions()) {
   
   for(int i = 0; i < 4; i++) {
-    input_buffers.push_back(std::make_shared<InputBuffer>(1024 /* normal capacity */, 1024 /* resubmit/recirc capacity */));
+    input_buffers.push_back(std::make_shared<InputBuffer>(1028 /* normal capacity */, 1028 /* resubmit/recirc capacity */));
     EgressThreadMapper mapper(nb_egress_threads);
-    egress_buffers.push_back(std::make_shared<Queue<std::unique_ptr<Packet>>>(128));
+    egress_buffers.push_back(std::make_shared<Queue<std::unique_ptr<Packet>>>(64));
     pres.push_back(std::make_shared<McSimplePreLAG>());
     add_component_multi<McSimplePreLAG>(i,pres.at(i));
   }
 
+  spdlog::drop("transmit_logger");
+  spdlog::drop("recieve_logger");
+  spdlog::drop("ingress_logger");
+  spdlog::drop("egress_logger");
 
+  auto now = std::chrono::system_clock::now();
+  auto now_time_t = std::chrono::system_clock::to_time_t(now);
+  std::tm now_tm = *std::localtime(&now_time_t);
+  std::stringstream ss;
+  ss << std::put_time(&now_tm, "%Y-%m-%d %H:%M:%S");
+  std::string time_str = ss.str();
+
+  std::string transmit = "../logs/transmit";
+  std::string transmit_remove = "../logs/transmit.txt";
+  std::remove(transmit_remove.c_str());
+  auto logger_ = spdlog::rotating_logger_mt("transmit_logger", transmit,
+                                          1024 * 1024 * 5, 3, true);
+  transmit_logger = logger_.get();
+  transmit_logger->set_level(spdlog::level::trace);
+  transmit_logger->set_pattern("[%H:%M:%S.%f] %v");
+
+  std::string receive = "../logs/receive";
+  std::string receive_remove = "../logs/receive.txt";
+  std::remove(receive_remove.c_str());
+  logger_ = spdlog::rotating_logger_mt("recieve_logger", receive,
+                                          1024 * 1024 * 5, 3, true);
+  recieve_logger = logger_.get();
+  recieve_logger->set_level(spdlog::level::trace);
+  recieve_logger->set_pattern("[%H:%M:%S.%f] %v");
+
+  std::string ingress = "../logs/ingress";
+  std::string ingress_remove = "../logs/ingress.txt";
+  std::remove(ingress_remove.c_str());
+  logger_ = spdlog::rotating_logger_mt("ingress_logger", ingress,
+                                          1024 * 1024 * 5, 3, true);
+  ingress_logger = logger_.get();
+  ingress_logger->set_level(spdlog::level::trace);
+  ingress_logger->set_pattern("[%H:%M:%S.%f] %v");
+
+  std::string egress = "../logs/egress";
+  std::string egress_remove = "../logs/egress.txt";
+  std::remove(egress_remove.c_str());
+  logger_ = spdlog::rotating_logger_mt("egress_logger", egress,
+                                          1024 * 1024 * 5, 3, true);
+  egress_logger = logger_.get();
+  egress_logger->set_level(spdlog::level::trace);
+  egress_logger->set_pattern("[%H:%M:%S.%f] %v");
+
+  std::string ing_buf = "../logs/ing_buf";
+  std::string ing_buf_remove = "../logs/ing_buf.txt";
+  std::remove(ing_buf_remove.c_str());
+  logger_ = spdlog::rotating_logger_mt("ing_buf", ing_buf,
+                                          1024 * 1024 * 5, 3, true);
+  ing_buf_logger = logger_.get();
+  ing_buf_logger->set_level(spdlog::level::trace);
+  ing_buf_logger->set_pattern("[%H:%M:%S.%f] %v");
+
+  std::string egg_buf = "../logs/egg_buf";
+  std::string egg_buf_remove = "../logs/egg_buf.txt";
+  std::remove(egg_buf_remove.c_str());
+  logger_ = spdlog::rotating_logger_mt("egg_buf", egg_buf,
+                                          1024 * 1024 * 5, 3, true);
+  egg_buf_logger = logger_.get();
+  egg_buf_logger->set_level(spdlog::level::trace);
+  egg_buf_logger->set_pattern("[%H:%M:%S.%f] %v");
 
   set_multi_switch(true);
  
@@ -228,14 +299,12 @@ MultiSwitch::receive_(port_t port_num, const char *buffer, int len) {
   // we limit the packet buffer to original size + 512 bytes, which means we
   // cannot add more than 512 bytes of header data to the packet, which should
   // be more than enough
+ 
 
-  std::cout << "new_packet_ptr\n";
-  std::cout << "len: " << len << "\n";
-  std::cout << "buffer: " << buffer << "\n";
   auto packet = new_packet_ptr(port_num, packet_id++, len,
                                bm::PacketBuffer(len + 512, buffer, len));
 
-  
+  recieve_logger->trace("{}", packet->get_signature());
 
   BMELOG(packet_in, *packet);
 
@@ -259,26 +328,27 @@ MultiSwitch::receive_(port_t port_num, const char *buffer, int len) {
     phv->get_field("intrinsic_metadata.ingress_global_timestamp")
         .set(get_ts().count());
   }
-
-  std::cout << "Ingress port: " << port_num << "\n";
   
   if(port_num < 8) {
       input_buffers.at(0)->push_front(
       InputBuffer::PacketType::NORMAL, std::move(packet));
+      ingress_logger->trace("Pipe 1: {}", input_buffers.at(0)->queue_lo.size());
   }
   else if (port_num < 16) {
       input_buffers.at(1)->push_front(
       InputBuffer::PacketType::NORMAL, std::move(packet));
+      ingress_logger->trace("Pipe 2: {}", input_buffers.at(1)->queue_lo.size());
   }
   else if (port_num < 24) {
       input_buffers.at(2)->push_front(
       InputBuffer::PacketType::NORMAL, std::move(packet));
+      ingress_logger->trace("Pipe 3: {}", input_buffers.at(2)->queue_lo.size());
   }
   else if (port_num < 32) {
       input_buffers.at(3)->push_front(
       InputBuffer::PacketType::NORMAL, std::move(packet));
+      ingress_logger->trace("Pipe 4: {}", input_buffers.at(3)->queue_lo.size());
   }
-  
   
   return 0;
 }
@@ -304,25 +374,13 @@ MultiSwitch::swap_notify_() {
 }
 
 MultiSwitch::~MultiSwitch() {
-  input_buffers.at(0)->push_front(
+  for (size_t i = 0; i < nb_ingress_threads; i++) {
+    input_buffers.at(i)->push_front(
       InputBuffer::PacketType::SENTINEL, nullptr);
-  input_buffers.at(1)->push_front(
-      InputBuffer::PacketType::SENTINEL, nullptr);
-  input_buffers.at(2)->push_front(
-      InputBuffer::PacketType::SENTINEL, nullptr);
-  input_buffers.at(3)->push_front(
-      InputBuffer::PacketType::SENTINEL, nullptr);
-  
-  /*for (size_t i = 0; i < nb_egress_threads; i++) {
-    // The push_front call is called inside a while loop because there is no
-    // guarantee that the sentinel was enqueued otherwise. It should not be an
-    // issue because at this stage the ingress thread has been sent a signal to
-    // stop, and only egress clones can be sent to the buffer.
-    while (egress_buffers.at(0)->push_front(i, 0, nullptr) == 0) continue;
-    while (egress_buffers.at(1)->push_front(i, 0, nullptr) == 0) continue;
-    while (egress_buffers.at(2)->push_front(i, 0, nullptr) == 0) continue;
-    while (egress_buffers.at(3)->push_front(i, 0, nullptr) == 0) continue;
-  }*/
+  }
+  for (size_t i = 0; i < nb_egress_threads; i++) {
+    egress_buffers.at(i)->push_front(nullptr);
+  }
   output_buffer.push_front(nullptr);
   for (auto& thread_ : threads_) {
     thread_.join();
@@ -355,39 +413,33 @@ MultiSwitch::mirroring_get_session(mirror_id_t mirror_id,
 int
 MultiSwitch::set_egress_priority_queue_depth(size_t port, size_t priority,
                                               const size_t depth_pkts) {
-  egress_buffers_t1.set_capacity(port, priority, depth_pkts);
-  return 0;
+  return -1;
 }
 
 int
 MultiSwitch::set_egress_queue_depth(size_t port, const size_t depth_pkts) {
-  egress_buffers_t1.set_capacity(port, depth_pkts);
-  return 0;
+  return -1;
 }
 
 int
 MultiSwitch::set_all_egress_queue_depths(const size_t depth_pkts) {
-  egress_buffers_t1.set_capacity_for_all(depth_pkts);
-  return 0;
+  return -1;
 }
 
 int
 MultiSwitch::set_egress_priority_queue_rate(size_t port, size_t priority,
                                              const uint64_t rate_pps) {
-  egress_buffers_t1.set_rate(port, priority, rate_pps);
-  return 0;
+  return -1;
 }
 
 int
 MultiSwitch::set_egress_queue_rate(size_t port, const uint64_t rate_pps) {
-  egress_buffers_t1.set_rate(port, rate_pps);
-  return 0;
+  return -1;
 }
 
 int
 MultiSwitch::set_all_egress_queue_rates(const uint64_t rate_pps) {
-  egress_buffers_t1.set_rate_for_all(rate_pps);
-  return 0;
+  return -1;
 }
 
 uint64_t
@@ -412,6 +464,7 @@ MultiSwitch::transmit_thread() {
     std::unique_ptr<Packet> packet;
     output_buffer.pop_back(&packet);
     if (packet == nullptr) break;
+    transmit_logger->trace("{}", packet->get_signature());
     BMELOG(packet_out, *packet);
     BMLOG_DEBUG_PKT(*packet, "Transmitting packet of size {} out of port {}",
                     packet->get_data_size(), packet->get_egress_port());
@@ -427,15 +480,13 @@ MultiSwitch::get_ts() const {
 
 void
 MultiSwitch::enqueue(port_t egress_port, std::unique_ptr<Packet> &&packet) {
-    //std::cout << "Enqueue\n";
     packet->set_egress_port(egress_port);
-    //std::cout << "pastEnqueue\n";
     PHV *phv = packet->get_phv();
 
     if (with_queueing_metadata) {
       phv->get_field("queueing_metadata.enq_timestamp").set(get_ts().count());
       phv->get_field("queueing_metadata.enq_qdepth")
-          .set(egress_buffers_t1.size(egress_port));
+          .set(egress_buffers.at(0)->size());
     }
 
     size_t priority = phv->has_field(SSWITCH_PRIORITY_QUEUEING_SRC) ?
@@ -445,20 +496,26 @@ MultiSwitch::enqueue(port_t egress_port, std::unique_ptr<Packet> &&packet) {
       return;
     }
 
-    std::cout << "Enqueue Egress port " << egress_port << "\n";
+    uint64_t signature = packet->get_signature();
 
     if(egress_port < 8) {
         egress_buffers.at(0)->push_front(std::move(packet));
+        egress_logger->trace("Pipe 1: {}", egress_buffers.at(0)->size());
     }
     else if (egress_port < 16) {
         egress_buffers.at(1)->push_front(std::move(packet));
+        egress_logger->trace("Pipe 2: {}", egress_buffers.at(1)->size());
     }
     else if (egress_port < 24) {
         egress_buffers.at(2)->push_front(std::move(packet));
+        egress_logger->trace("Pipe 3: {}", egress_buffers.at(2)->size());
     }
     else if (egress_port < 32) {
         egress_buffers.at(3)->push_front(std::move(packet));
+        egress_logger->trace("Pipe 4: {}", egress_buffers.at(3)->size());
     }
+
+    ing_buf_logger->trace("{}", signature);
 }
 
 // used for ingress cloning, resubmit
@@ -519,19 +576,13 @@ MultiSwitch::ingress_thread(size_t worker_id) {
   while (1) {
     std::unique_ptr<Packet> packet;
 
-    std::cout << "Ingress worker: " << worker_id << "\n";
-
     input_buffers.at(worker_id)->pop_back(&packet);
     
     if (packet == nullptr) break;
 
-    std::cout << "Ingress worker " << worker_id << " recieved packet\n";
-
     // TODO(antonin): only update these if swapping actually happened?
     Parser *parser = this->get_parser(worker_id, "parser");
     Pipeline *ingress_mau = this->get_pipeline(worker_id, "ingress");
-
-    //std::cout << "1\n";
 
     phv = packet->get_phv();
 
@@ -540,12 +591,9 @@ MultiSwitch::ingress_thread(size_t worker_id) {
     BMLOG_DEBUG_PKT(*packet, "Processing packet received on port {}",
                     ingress_port);
 
-    //std::cout << "2\n";
-
     auto ingress_packet_size =
         packet->get_register(RegisterAccess::PACKET_LENGTH_REG_IDX);
 
-    //std::cout << "3\n";
 
     /* This looks like it comes out of the blue. However this is needed for
        ingress cloning. The parser updates the buffer state (pops the parsed
@@ -555,38 +603,24 @@ MultiSwitch::ingress_thread(size_t worker_id) {
        parser leave the buffer unchanged, and move the pop logic to the
        deparser. TODO? */
 
-
-    //std::cout << "4\n";
-
     const Packet::buffer_state_t packet_in_state = packet->save_buffer_state();
 
-    //std::cout << "5\n";
-
     parser->parse(packet.get());
-
-    //std::cout << "6\n";
 
     if (phv->has_field("standard_metadata.parser_error")) {
       phv->get_field("standard_metadata.parser_error").set(
           packet->get_error_code().get());
     }
 
-    //std::cout << "7\n";
     
     if (phv->has_field("standard_metadata.checksum_error")) {
       phv->get_field("standard_metadata.checksum_error").set(
            packet->get_checksum_error() ? 1 : 0);
     }
 
-    //std::cout << "8\n";
-
     ingress_mau->apply(packet.get());
 
-    //std::cout << "9\n";
-
     packet->reset_exit();
-
-    //std::cout << "10\n";
 
     Field &f_egress_spec = phv->get_field("standard_metadata.egress_spec");
     port_t egress_spec = f_egress_spec.get_uint();
@@ -696,7 +730,6 @@ MultiSwitch::ingress_thread(size_t worker_id) {
       continue;
     }
 
-    //std::cout << "11\n";
     port_t egress_port = egress_spec;
     BMLOG_DEBUG_PKT(*packet, "Egress port is {}", egress_port);
 
@@ -720,13 +753,9 @@ MultiSwitch::egress_thread(size_t worker_id) {
     size_t port;
     size_t priority;
 
-    std::cout << "Egress worker: " << worker_id << "\n";
-
     egress_buffers.at(worker_id)->pop_back(&packet);
     
     if (packet == nullptr) break;
-
-    std::cout << "Egress worker " << worker_id << " recieved packet\n";
 
     Deparser *deparser = this->get_deparser(worker_id,"deparser");
     Pipeline *egress_mau = this->get_pipeline(worker_id,"egress");
@@ -744,7 +773,7 @@ MultiSwitch::egress_thread(size_t worker_id) {
       phv->get_field("queueing_metadata.deq_timedelta").set(
           get_ts().count() - enq_timestamp);
       phv->get_field("queueing_metadata.deq_qdepth").set(
-          egress_buffers_t1.size(port));
+          egress_buffers.at(0)->size());
       if (phv->has_field("queueing_metadata.qid")) {
         auto &qid_f = phv->get_field("queueing_metadata.qid");
         qid_f.set(nb_queues_per_port - 1 - priority);
@@ -846,6 +875,8 @@ MultiSwitch::egress_thread(size_t worker_id) {
       continue;
     }
 
+    uint64_t signature = packet->get_signature();
     output_buffer.push_front(std::move(packet));
+    egg_buf_logger->trace("{}", signature);
   }
 }

@@ -47,4 +47,4 @@ sudo sysctl net.ipv6.conf.veth5.disable_ipv6=1
 
 cd ../../../simple_switch
 
-./simple_switch -i 0@veth1  --log-file switch_log.txt pipe1.json pipe1.json pipe1.json pipe1.json
+./simple_switch -i 0@veth1 -i 1@veth3 -i 2@veth5 --log-file switch_log.txt pipe1.json pipe1.json pipe1.json pipe1.json

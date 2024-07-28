@@ -172,8 +172,6 @@ class MultiSwitch : public MultiContexts {
   std::vector<std::thread> threads_;
   std::vector<std::shared_ptr<InputBuffer>> input_buffers;
   std::vector<std::shared_ptr<Queue<std::unique_ptr<Packet>>>> egress_buffers;
-  bm::QueueingLogicPriRL<std::unique_ptr<Packet>, EgressThreadMapper>
-  egress_buffers_t1;
   std::vector<std::shared_ptr<McSimplePreLAG>> pres;
   // for these queues, the write operation is non-blocking and we drop the
   // packet if the queue is full

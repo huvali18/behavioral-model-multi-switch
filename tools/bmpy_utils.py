@@ -59,6 +59,7 @@ def check_JSON_md5(client, json_src, out=sys.stdout):
 
 
 def get_json_config(standard_client=None, json_path=None, out=sys.stdout):
+    print("json")
     def my_print(s):
         out.write(s)
 

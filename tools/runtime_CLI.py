@@ -2623,6 +2623,7 @@ class RuntimeAPI(cmd.Cmd):
         self.client.bm_set_toeplitz_hash_key(0, name, key)
 
 def load_json_config(standard_client=None, json_path=None, architecture_spec=None):
+    print("json_config")
     load_json_str(utils.get_json_config(
         standard_client, json_path), architecture_spec)
 

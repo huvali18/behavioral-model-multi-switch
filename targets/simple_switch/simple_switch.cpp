@@ -23,6 +23,8 @@
 #include <bm/bm_sim/parser.h>
 #include <bm/bm_sim/tables.h>
 #include <bm/bm_sim/logger.h>
+#include <chrono>
+#include <iomanip>
 
 #include <unistd.h>
 
@@ -37,6 +39,13 @@
 
 #include "simple_switch.h"
 #include "register_access.h"
+
+spdlog::logger *transmit_logger;
+spdlog::logger *recieve_logger;
+spdlog::logger *ingress_logger;
+spdlog::logger *egress_logger;
+spdlog::logger *ing_buf_logger;
+spdlog::logger *egg_buf_logger;
 
 namespace {
 
@@ -124,6 +133,9 @@ class SimpleSwitch::MirroringSessions {
 // is blocking (back pressure is applied to the interface).
 class SimpleSwitch::InputBuffer {
  public:
+
+  using QueueImpl = std::deque<std::unique_ptr<Packet> >;
+
   enum class PacketType {
     NORMAL,
     RESUBMIT,
@@ -169,10 +181,13 @@ class SimpleSwitch::InputBuffer {
     }
   }
 
+  QueueImpl queue_hi;
+  QueueImpl queue_lo;
+
  private:
   using Mutex = std::mutex;
   using Lock = std::unique_lock<Mutex>;
-  using QueueImpl = std::deque<std::unique_ptr<Packet> >;
+  //using QueueImpl = std::deque<std::unique_ptr<Packet> >;
 
   int push_front(QueueImpl *queue, size_t capacity,
                  std::condition_variable *cvar,
@@ -194,8 +209,6 @@ class SimpleSwitch::InputBuffer {
   mutable std::condition_variable cvar_can_pop;
   size_t capacity_hi;
   size_t capacity_lo;
-  QueueImpl queue_hi;
-  QueueImpl queue_lo;
 };
 
 SimpleSwitch::SimpleSwitch(bool enable_swap, port_t drop_port,
@@ -221,6 +234,72 @@ SimpleSwitch::SimpleSwitch(bool enable_swap, port_t drop_port,
     mirroring_sessions(new MirroringSessions()) {
   add_component<McSimplePreLAG>(pre);
 
+  spdlog::drop("transmit_logger");
+  spdlog::drop("recieve_logger");
+  spdlog::drop("ingress_logger");
+  spdlog::drop("egress_logger");
+
+  auto now = std::chrono::system_clock::now();
+  auto now_time_t = std::chrono::system_clock::to_time_t(now);
+  std::tm now_tm = *std::localtime(&now_time_t);
+  std::stringstream ss;
+  ss << std::put_time(&now_tm, "%Y-%m-%d %H:%M:%S");
+  std::string time_str = ss.str();
+
+  std::string transmit = "../logs/transmit";
+  std::string transmit_remove = "../logs/transmit.txt";
+  std::remove(transmit_remove.c_str());
+  auto logger_ = spdlog::rotating_logger_mt("transmit_logger", transmit,
+                                          1024 * 1024 * 5, 3, true);
+  transmit_logger = logger_.get();
+  transmit_logger->set_level(spdlog::level::trace);
+  transmit_logger->set_pattern("[%H:%M:%S.%f] %v");
+
+  std::string receive = "../logs/receive";
+  std::string receive_remove = "../logs/receive.txt";
+  std::remove(receive_remove.c_str());
+  logger_ = spdlog::rotating_logger_mt("recieve_logger", receive,
+                                          1024 * 1024 * 5, 3, true);
+  recieve_logger = logger_.get();
+  recieve_logger->set_level(spdlog::level::trace);
+  recieve_logger->set_pattern("[%H:%M:%S.%f] %v");
+
+  std::string ingress = "../logs/ingress";
+  std::string ingress_remove = "../logs/ingress.txt";
+  std::remove(ingress_remove.c_str());
+  logger_ = spdlog::rotating_logger_mt("ingress_logger", ingress,
+                                          1024 * 1024 * 5, 3, true);
+  ingress_logger = logger_.get();
+  ingress_logger->set_level(spdlog::level::trace);
+  ingress_logger->set_pattern("[%H:%M:%S.%f] %v");
+
+  std::string egress = "../logs/egress";
+  std::string egress_remove = "../logs/egress.txt";
+  std::remove(egress_remove.c_str());
+  logger_ = spdlog::rotating_logger_mt("egress_logger", egress,
+                                          1024 * 1024 * 5, 3, true);
+  egress_logger = logger_.get();
+  egress_logger->set_level(spdlog::level::trace);
+  egress_logger->set_pattern("[%H:%M:%S.%f] %v");
+
+  std::string ing_buf = "../logs/ing_buf";
+  std::string ing_buf_remove = "../logs/ing_buf.txt";
+  std::remove(ing_buf_remove.c_str());
+  logger_ = spdlog::rotating_logger_mt("ing_buf", ing_buf,
+                                          1024 * 1024 * 5, 3, true);
+  ing_buf_logger = logger_.get();
+  ing_buf_logger->set_level(spdlog::level::trace);
+  ing_buf_logger->set_pattern("[%H:%M:%S.%f] %v");
+
+  std::string egg_buf = "../logs/egg_buf";
+  std::string egg_buf_remove = "../logs/egg_buf.txt";
+  std::remove(egg_buf_remove.c_str());
+  logger_ = spdlog::rotating_logger_mt("egg_buf", egg_buf,
+                                          1024 * 1024 * 5, 3, true);
+  egg_buf_logger = logger_.get();
+  egg_buf_logger->set_level(spdlog::level::trace);
+  egg_buf_logger->set_pattern("[%H:%M:%S.%f] %v");
+
   add_required_field("standard_metadata", "ingress_port");
   add_required_field("standard_metadata", "packet_length");
   add_required_field("standard_metadata", "instance_type");
@@ -241,6 +320,8 @@ SimpleSwitch::receive_(port_t port_num, const char *buffer, int len) {
   // be more than enough
   auto packet = new_packet_ptr(port_num, packet_id++, len,
                                bm::PacketBuffer(len + 512, buffer, len));
+
+  recieve_logger->trace("{}", packet->get_signature());
 
   BMELOG(packet_in, *packet);
 
@@ -267,6 +348,9 @@ SimpleSwitch::receive_(port_t port_num, const char *buffer, int len) {
 
   input_buffer->push_front(
       InputBuffer::PacketType::NORMAL, std::move(packet));
+
+  ingress_logger->trace("Pipe s: {}", input_buffer->queue_lo.size());
+
   return 0;
 }
 
@@ -387,6 +471,7 @@ SimpleSwitch::transmit_thread() {
     std::unique_ptr<Packet> packet;
     output_buffer.pop_back(&packet);
     if (packet == nullptr) break;
+    transmit_logger->trace("{}", packet->get_signature());
     BMELOG(packet_out, *packet);
     BMLOG_DEBUG_PKT(*packet, "Transmitting packet of size {} out of port {}",
                     packet->get_data_size(), packet->get_egress_port());
@@ -418,9 +503,15 @@ SimpleSwitch::enqueue(port_t egress_port, std::unique_ptr<Packet> &&packet) {
       bm::Logger::get()->error("Priority out of range, dropping packet");
       return;
     }
+
+    uint64_t signature = packet->get_signature();
+
     egress_buffers.push_front(
         egress_port, nb_queues_per_port - 1 - priority,
         std::move(packet));
+    egress_logger->trace("Pipe {}: {}", egress_port, egress_buffers.size(egress_port));
+
+    ing_buf_logger->trace("{}", signature);
 }
 
 // used for ingress cloning, resubmit
@@ -764,6 +855,8 @@ SimpleSwitch::egress_thread(size_t worker_id) {
       continue;
     }
 
+    uint64_t signature = packet->get_signature();
     output_buffer.push_front(std::move(packet));
+    egg_buf_logger->trace("{}", signature);
   }
 }
